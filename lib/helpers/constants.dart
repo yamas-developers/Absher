@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 const Color mainColor = Color.fromRGBO(120, 22, 145, 1);
 const Color mainColorLight = Color.fromRGBO(155, 28, 187, 1);
+const Color splashGradientLightColor = Color.fromRGBO(161, 40, 191, 1);
 const Color mainFontColor = Color.fromRGBO(188, 55, 222, 1);
 const Color mainColorLightest = Color.fromRGBO(246, 235, 249, 1);
 const Color lightGreyColor = Color.fromRGBO(204, 210, 227, 1);
@@ -19,6 +20,12 @@ const Color greyDividerColor = Color.fromRGBO(196, 196, 196, 1);
 const Color mediumGreyFontColor = Color.fromRGBO(39, 57, 100, 1);
 const Color facebookColor = Color.fromRGBO(66, 103, 178, 1);
 const Color googleColor = Color.fromRGBO(219, 68, 55, 1);
+
+const BUSINESS_TYPE_RESTAURANT = "1";
+const BUSINESS_TYPE_STORE = "2";
+const BUSINESS_TYPE_PHARMACY = "3";
+
+const PLACEHOLDER_IAMGE_PATH = "assets/images/placeholder_image.png";
 
 dynamic langs = [
   {"locale": "en", "lang": "English"},

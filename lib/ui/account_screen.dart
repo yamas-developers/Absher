@@ -1,3 +1,5 @@
+import 'package:absher/helpers/session_helper.dart';
+import 'package:absher/providers/user/user_provider.dart';
 import 'package:absher/ui/common_widgets/avatar.dart';
 import 'package:absher/ui/common_widgets/build_slide_transition.dart';
 import 'package:absher/ui/common_widgets/touchable_opacity.dart';
@@ -5,6 +7,7 @@ import 'package:absher/ui/common_widgets/touchable_opacity.dart';
 // import 'package:absher/ui/components/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:provider/provider.dart';
 
 import '../helpers/constants.dart';
 import '../helpers/public_methods.dart';
@@ -407,7 +410,13 @@ class _AccountScreenState extends State<AccountScreen> {
                         BuildSlideTransition(
                           child: ProfilePoliciesItem(
                               title: getString("profile__logout"),
-                              onPressed: () {}),
+                              onPressed: () {
+                                context.read<UserProvider>().user = null;
+                                context.read<UserProvider>().token = null;
+                                setSession(null);
+                                showToast("You have been logout");
+                                Navigator.pushReplacementNamed(context, login_screen);
+                              }),
                           animationDuration: animationDuration += 100,
                           curve: curve,
                         ),

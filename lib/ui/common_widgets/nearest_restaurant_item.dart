@@ -1,30 +1,20 @@
+import 'package:absher/api/mj_apis.dart';
 import 'package:flutter/material.dart';
 
 import '../../helpers/public_methods.dart';
+import '../../models/restaurant.dart';
 class NearestResturentItem extends StatelessWidget {
   final onPress;
-  final String image;
-  final String title;
-  final String price;
-  final String placeName;
-  final String rating;
-  final String distance;
-  final String timeDuration;
   final double widthFraction;
   final double maxWidth;
   final double centerImageheight;
   final bool adjustOnLandscape;
+  final Business resData;
 
   const NearestResturentItem(
       {Key? key,
+        required this.resData,
         required this.onPress,
-        required this.image,
-        required this.title,
-        required this.price,
-        required this.placeName,
-        required this.timeDuration,
-        required this.rating,
-        required this.distance,
         this.widthFraction = 1,
         this.maxWidth = 300,
         this.centerImageheight = 110, this.adjustOnLandscape = true,
@@ -63,7 +53,7 @@ class NearestResturentItem extends StatelessWidget {
                     children: [
                       Flexible(
                         child: Text(
-                          "$title",
+                          "${resData.name}",
                           maxLines: 1,
                           style: TextStyle(
                             overflow: TextOverflow.ellipsis,
@@ -73,25 +63,30 @@ class NearestResturentItem extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Row(
-                        children: [
-                          Image.asset(
-                            "assets/icons/location_pin_grey.png",
-                            width: 16,
-                            height: 16,
-                          ),
-                          Container(
-                            width: 80,
-                            child: Text(
-                              placeName,
-                              maxLines: 1,
-                              style: TextStyle(
-                                overflow: TextOverflow.ellipsis,
-                                fontSize: 12,
+                      Flexible(
+                        child: Row(
+                          children: [
+                            Image.asset(
+                              "assets/icons/location_pin_grey.png",
+                              width: 16,
+                              height: 16,
+                            ),
+                            Expanded(
+                              child: Container(
+                                // width: 120,
+                                child: Text(
+                                  "${resData.address}",
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: TextStyle(
+                                    overflow: TextOverflow.ellipsis,
+                                    fontSize: 12,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       )
                     ],
                   ),
@@ -103,12 +98,27 @@ class NearestResturentItem extends StatelessWidget {
                     child: Stack(
                       alignment: Alignment.bottomLeft,
                       children: [
-                        Image.asset(
-                          '$image',
+                        if(resData.coverPhoto!=null)
+                        Image.network(
+                          '${MJ_Apis.restaurantCoverImgPath}${resData.coverPhoto}',
                           width: getWidth(context),
                           height: isPortrait(context) || !adjustOnLandscape? centerImageheight : 240,
                           fit: BoxFit.cover,
                         ),
+                        Container(
+                          height: isPortrait(context) || !adjustOnLandscape? centerImageheight : 240,
+                          decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                  end: Alignment.bottomCenter,
+                                  begin: Alignment.topCenter,
+                                  colors: [
+                                    Color.fromRGBO(188, 55, 222, 0),
+                                    Color.fromRGBO(188, 55, 222, 0),
+                                    Color.fromRGBO(
+                                        120, 22, 145, 0.82),
+                                  ])),
+                        ),
+
                         Padding(
                           padding: const EdgeInsets.only(left: 8, bottom: 2.0),
                           child: Column(
@@ -132,7 +142,7 @@ class NearestResturentItem extends StatelessWidget {
                                       width: 2,
                                     ),
                                     Text(
-                                      "${rating}",
+                                      "${resData.ratingCount??0}",
                                       style: TextStyle(
                                           fontSize: 12, color: Colors.white),
                                     ),
@@ -146,7 +156,7 @@ class NearestResturentItem extends StatelessWidget {
                                 direction: Axis.horizontal,
                                 children: [
                                   Expanded(
-                                    flex: 3,
+                                    flex: 2,
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
@@ -154,13 +164,14 @@ class NearestResturentItem extends StatelessWidget {
                                           "assets/icons/time.png",
                                           width: 16,
                                           height: 16,
+                                          color: Colors.white,
                                         ),
                                         SizedBox(
                                           width: 2,
                                         ),
                                         Flexible(
                                           child: Text(
-                                            "$timeDuration Mints",
+                                            "${resData.deliveryTime} Mints",
                                             maxLines: 1,
                                             style: TextStyle(
                                                 overflow: TextOverflow.ellipsis,
@@ -186,7 +197,7 @@ class NearestResturentItem extends StatelessWidget {
                                         ),
                                         Flexible(
                                           child: Text(
-                                            "$distance km",
+                                            "${"to do"} km",
                                             maxLines: 1,
                                             style: TextStyle(
                                                 overflow: TextOverflow.ellipsis,
@@ -209,11 +220,15 @@ class NearestResturentItem extends StatelessWidget {
                                         SizedBox(
                                           width: 6,
                                         ),
-                                        Text(
-                                          "\$$price",
-                                          style: TextStyle(
-                                              fontSize: 13, color: Colors.white,
-                                          fontWeight: FontWeight.bold
+                                        Flexible(
+                                          child: Text(
+                                            "QAR ${resData.minimumShippingCharge}+",
+                                            maxLines: 1,
+                                            style: TextStyle(
+                                                overflow: TextOverflow.ellipsis,
+                                                fontSize: 12, color: Colors.white,
+                                            fontWeight: FontWeight.w600
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -223,7 +238,7 @@ class NearestResturentItem extends StatelessWidget {
                               )
                             ],
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),

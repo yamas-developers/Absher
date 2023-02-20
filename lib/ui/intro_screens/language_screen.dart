@@ -18,9 +18,9 @@ class LanguageScreen extends StatefulWidget {
 class _LanguageScreenState extends State<LanguageScreen> {
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      context.read<LocationProvider>().getCurrentLocation();
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    //   context.read<LocationProvider>().getCurrentLocation();
+    // });
     super.initState();
   }
 

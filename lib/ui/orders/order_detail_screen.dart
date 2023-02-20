@@ -66,7 +66,6 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       child: child,
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

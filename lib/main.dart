@@ -1,5 +1,6 @@
 import 'package:absher/helpers/constants.dart';
 import 'package:absher/providers/location/location_provider.dart';
+import 'package:absher/providers/mj_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'helpers/router_helper.dart' as router;
@@ -7,30 +8,24 @@ import 'package:easy_localization/easy_localization.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await EasyLocalization.ensureInitialized();
 
   runApp(
     EasyLocalization(
-      supportedLocales: [Locale('en'), Locale('ar')],
-      path: 'assets/translations',
-      fallbackLocale: Locale('en'),
-      child:
-      MyApp()
-    ),
+        supportedLocales: [Locale('en'), Locale('ar')],
+        path: 'assets/translations',
+        fallbackLocale: Locale('en'),
+        child: MyApp()),
   );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<LocationProvider>(create: (_) => LocationProvider()),
-      ],
+      providers: [...providers],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         localizationsDelegates: context.localizationDelegates,
@@ -50,9 +45,7 @@ class MyApp extends StatelessWidget {
           primaryColor: mainColor,
           primarySwatch: Colors.purple,
         ),
-        // home: const MyHomePage(title: 'Flutter Demo Home Page'),
         initialRoute: '/',
-        // routes: routes,
         onGenerateRoute: router.generateRoute,
       ),
     );

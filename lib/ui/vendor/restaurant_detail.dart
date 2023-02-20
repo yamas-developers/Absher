@@ -1,11 +1,18 @@
+import 'dart:developer' as dev;
 import 'dart:math';
 
+import 'package:absher/models/restaurant.dart';
+import 'package:absher/providers/business/business_detail_provider.dart';
+import 'package:absher/ui/common_widgets/misc_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:provider/provider.dart';
 
+import '../../api/mj_apis.dart';
 import '../../helpers/constants.dart';
 import '../../helpers/public_methods.dart';
 import '../../helpers/route_constants.dart';
+import '../../models/category_product.dart';
 import '../common_widgets/avatar.dart';
 import '../common_widgets/build_slide_transition.dart';
 
@@ -18,13 +25,14 @@ class RestaurantDetailScreen extends StatefulWidget {
 
 class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
     with TickerProviderStateMixin<RestaurantDetailScreen> {
-  String selected = "Best Selling";
-  List categories = ["Best Selling", "Sushi", "Salad", "Pasta", "Fish"];
+  String selected = "1";
+
+  // List categories = ["Best Selling", "Sushi", "Salad", "Pasta", "Fish"];
   List<GlobalKey>? _keys;
   GlobalKey<State> myKey = GlobalKey();
   double top = 40;
   bool showOnTop = false;
-  String storeType = "";
+  String storeType = BUSINESS_TYPE_RESTAURANT;
 
   AnimationController? _controller;
   RenderObject? _prevRenderObject;
@@ -52,7 +60,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
 
   @override
   void initState() {
-    _keys = List.generate(categories.length, (index) => GlobalKey());
     setState(() {});
     _controller = new AnimationController(
         vsync: this, duration: Duration(milliseconds: 300));
@@ -67,19 +74,32 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
     super.initState();
   }
 
+  Business? businessItem;
+
   @override
   void didChangeDependencies() {
     if (ModalRoute.of(context)!.settings.arguments == null) return;
     final args = ModalRoute.of(context)!.settings.arguments as Map;
     if (args != null) {
-      storeType = args["store_type"];
-
-      print("arguments: ${storeType}");
-    }
-    if (storeType == "pharmacy") {
       setState(() {
-        categories = ["All", "Men", "Women", "Kids", "Pain Killers"];
-        selected = "All";
+        businessItem = args["store"];
+        storeType = businessItem?.businessType?.id ?? BUSINESS_TYPE_RESTAURANT;
+      });
+      dev.log("arguments: ${storeType} ${businessItem?.name}");
+      if (businessItem is Business) {
+        BusinessDetailProvider provider =
+            context.read<BusinessDetailProvider>();
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+          provider.business = businessItem;
+          await provider.getData();
+        });
+      }
+    }
+
+    if (storeType == BUSINESS_TYPE_PHARMACY) {
+      setState(() {
+        // categories = ["All", "Men", "Women", "Kids", "Pain Killers"];
+        selected = "1";
       });
     }
     super.didChangeDependencies();
@@ -87,107 +107,62 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
 
   @override
   Widget build(BuildContext context) {
+    dev.log("arguments:");
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 0,
         backgroundColor: mainColor,
       ),
-      body: Stack(
-        children: [
-          NotificationListener<ScrollNotification>(
-            child: CustomScrollView(
-              slivers: [
-                SliverPersistentHeader(
-                  delegate: MySliverAppBar(
-                      expandedHeight: 200,
-                      setTop: setTop,
-                      setShowOnTop: setShowOnTop),
-                  pinned: true,
-                ),
-                SliverList(
-                  delegate: SliverChildListDelegate([
-                    SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                left: 14.0, top: 18, right: 18),
-                            child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text("Lorem ipsum dolor smit",
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w600)),
-                                  Text('${storeType != "pharmacy" ? "Bakery - Coffee Shop" : "Pharmacy - Medicine Store"}',
-                                      style: TextStyle(
-                                          fontSize: 14, color: darkGreyColor)),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Container(
-                                    height: 40,
-                                    // padding: EdgeInsets.symmetric(vertical: 10),
+      body: Consumer<BusinessDetailProvider>(builder: (context, provider, _) {
+        _keys = List.generate(
+            provider.businessCategories.length, (index) => GlobalKey());
+        return Stack(
+          children: [
+            NotificationListener<ScrollNotification>(
+              child: CustomScrollView(
+                slivers: [
+                  SliverPersistentHeader(
+                    delegate: MySliverAppBar(
+                        expandedHeight: 200,
+                        setTop: setTop,
+                        setShowOnTop: setShowOnTop,
+                        provider: provider),
+                    pinned: true,
+                  ),
+                  SliverList(
+                    delegate: SliverChildListDelegate([
+                      SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 14.0, top: 18, right: 18),
+                              child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text("${businessItem?.name}",
+                                        style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600)),
+                                    Text('${businessItem?.businessType?.type}',
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            color: darkGreyColor)),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Container(
+                                      height: 40,
+                                      // padding: EdgeInsets.symmetric(vertical: 10),
 
-                                    child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceAround,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.stretch,
-                                        children: [
-                                          Expanded(
-                                            flex: 2,
-                                            child: Column(
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: [
-                                                    Image.asset(
-                                                      "assets/icons/star.png",
-                                                      width: 16,
-                                                      color: mainColor,
-                                                      height: 16,
-                                                    ),
-                                                    SizedBox(
-                                                      width: 8,
-                                                    ),
-                                                    Text(
-                                                      "3.66",
-                                                      style: TextStyle(
-                                                          color: mainColor,
-                                                          fontSize: 12,
-                                                          fontWeight:
-                                                              FontWeight.w500),
-                                                    )
-                                                  ],
-                                                ),
-                                                Text(
-                                                  "Rating",
-                                                  style: TextStyle(
-                                                      color: darkGreyColor,
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w500),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 3,
-                                            child: Container(
-                                              // width: getWidth(context) * .3,
-                                              decoration: BoxDecoration(
-                                                  border: Border(
-                                                left: BorderSide(
-                                                    color: mainColor,
-                                                    width: 1.5),
-                                                right: BorderSide(
-                                                    color: mainColor,
-                                                    width: 1.5),
-                                              )),
+                                      child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceAround,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.stretch,
+                                          children: [
+                                            Expanded(
+                                              flex: 2,
                                               child: Column(
                                                 children: [
                                                   Row(
@@ -199,7 +174,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
                                                             .center,
                                                     children: [
                                                       Image.asset(
-                                                        "assets/icons/time.png",
+                                                        "assets/icons/star.png",
                                                         width: 16,
                                                         color: mainColor,
                                                         height: 16,
@@ -208,7 +183,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
                                                         width: 8,
                                                       ),
                                                       Text(
-                                                        "30 - 40 mins",
+                                                        '${businessItem?.ratingCount ?? 0}',
                                                         style: TextStyle(
                                                             color: mainColor,
                                                             fontSize: 12,
@@ -219,7 +194,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
                                                     ],
                                                   ),
                                                   Text(
-                                                    "Time",
+                                                    "Rating",
                                                     style: TextStyle(
                                                         color: darkGreyColor,
                                                         fontSize: 12,
@@ -229,221 +204,324 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
                                                 ],
                                               ),
                                             ),
-                                          ),
-                                          Expanded(
-                                            flex: 2,
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                GestureDetector(
-                                                  onTap: () {
-                                                    Navigator.pushNamed(context, vendor_info_screen);
-                                                    // if (myKey.currentContext !=
-                                                    //     null) {
-                                                    //   Scrollable.ensureVisible(
-                                                    //       myKey
-                                                    //           .currentContext!);
-                                                    // }
-                                                  },
-                                                  child: Image.asset(
-                                                    "assets/icons/info_icon.png",
-                                                    width: 24,
-                                                    color: mainColor,
-                                                    height: 24,
-                                                  ),
+                                            Expanded(
+                                              flex: 3,
+                                              child: Container(
+                                                // width: getWidth(context) * .3,
+                                                decoration: BoxDecoration(
+                                                    border: Border(
+                                                  left: BorderSide(
+                                                      color: mainColor,
+                                                      width: 1.5),
+                                                  right: BorderSide(
+                                                      color: mainColor,
+                                                      width: 1.5),
+                                                )),
+                                                child: Column(
+                                                  children: [
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        Image.asset(
+                                                          "assets/icons/time.png",
+                                                          width: 16,
+                                                          color: mainColor,
+                                                          height: 16,
+                                                        ),
+                                                        SizedBox(
+                                                          width: 8,
+                                                        ),
+                                                        Text(
+                                                          "${businessItem?.deliveryTime ?? 0} mins",
+                                                          style: TextStyle(
+                                                              color: mainColor,
+                                                              fontSize: 12,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500),
+                                                        )
+                                                      ],
+                                                    ),
+                                                    Text(
+                                                      "Time",
+                                                      style: TextStyle(
+                                                          color: darkGreyColor,
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.w500),
+                                                    )
+                                                  ],
                                                 ),
-                                              ],
-                                            ),
-                                          ),
-                                        ]),
-                                  ),
-                                  SizedBox(height: 10),
-                                ]),
-                          ),
-                          // if(!showOnTop)
-                          Container(
-                            key: myKey,
-                            // color: mainColorLight.withOpacity(0.25),
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            height: 50,
-                            child: Visibility(
-                              visible: !showOnTop,
-                              child: ListView(
-                                scrollDirection: Axis.horizontal,
-                                children: [
-                                  ...List.generate(
-                                    categories.length,
-                                    (i) => GestureDetector(
-                                      onTap: () {
-                                        if (_keys != null) if (_keys![i]
-                                                .currentContext !=
-                                            null) {
-                                          Scrollable.ensureVisible(
-                                            _keys![i].currentContext!,
-                                            duration:
-                                                Duration(milliseconds: 200),
-                                            curve: Curves.ease,
-                                          );
-                                        }
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 4.0, vertical: 8),
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                              color: categories[i] == selected
-                                                  ? mainColor
-                                                  : mainColorLight
-                                                      .withOpacity(0.25),
-                                              borderRadius:
-                                                  BorderRadius.circular(6)),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8),
-                                            child: Center(
-                                                child: Text(
-                                              "${categories[i]}",
-                                              style: TextStyle(
-                                                  color:
-                                                      categories[i] == selected
-                                                          ? Colors.white
-                                                          : Colors.black54),
-                                            )),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ).toList(),
-                                ],
-                              ),
-                            ),
-                          ),
-                          // SizedBox(height: 20),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 0, horizontal: 12),
-                            child: Column(
-                              children: [
-                                ...List.generate(
-                                    categories.length,
-                                    (index) => Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            SizedBox(
-                                              height: 30,
-                                              key: _keys != null
-                                                  ? _keys![index]
-                                                  : null,
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 18.0),
-                                              child: Text(
-                                                "${categories[index]}",
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 16,
-                                                    color: mainColor),
                                               ),
                                             ),
-                                            SizedBox(
-                                              height: 12,
+                                            Expanded(
+                                              flex: 2,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      Navigator.pushNamed(
+                                                          context,
+                                                          vendor_info_screen);
+                                                      // if (myKey.currentContext !=
+                                                      //     null) {
+                                                      //   Scrollable.ensureVisible(
+                                                      //       myKey
+                                                      //           .currentContext!);
+                                                      // }
+                                                    },
+                                                    child: Image.asset(
+                                                      "assets/icons/info_icon.png",
+                                                      width: 24,
+                                                      color: mainColor,
+                                                      height: 24,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
-                                            ...List.generate(
-                                                7,
-                                                (index) {
-                                                  int i = index < 11 ? index + 1 : Random().nextInt(11) + 1;
-                                                  return BuildSlideTransition(child: RestaurantFoodItem(
-                                                  index: storeType != "pharmacy" ? i: i + 11,
-                                                    type: storeType,
-                                                ),animationDuration: (index+1) * 500, curve: Curves.elasticInOut, startPos:2.0);
-                                                }).toList()
-                                          ],
-                                        )).toList(),
-                              ],
+                                          ]),
+                                    ),
+                                    SizedBox(height: 10),
+                                  ]),
                             ),
-                          )
-                        ],
+                            if (provider.loading &&
+                                provider.businessCategories.isEmpty)
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    height: getHeight(context) * .16,
+                                  ),
+                                  LoadingIndicator(),
+                                ],
+                              )
+                            else ...[
+                              // if(!showOnTop)
+                              Container(
+                                key: myKey,
+                                // color: mainColorLight.withOpacity(0.25),
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                height: 50,
+                                child: Visibility(
+                                  visible: !showOnTop,
+                                  child: ListView(
+                                    scrollDirection: Axis.horizontal,
+                                    children: [
+                                      ...List.generate(
+                                        provider.businessCategories.length,
+                                        (i) => GestureDetector(
+                                          onTap: () {
+                                            if (_keys != null) if (_keys![i]
+                                                    .currentContext !=
+                                                null) {
+                                              Scrollable.ensureVisible(
+                                                _keys![i].currentContext!,
+                                                duration:
+                                                    Duration(milliseconds: 200),
+                                                curve: Curves.ease,
+                                              );
+                                            }
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 4.0, vertical: 8),
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                  color: provider
+                                                              .businessCategories[
+                                                                  i]
+                                                              .id ==
+                                                          selected
+                                                      ? mainColor
+                                                      : mainColorLight
+                                                          .withOpacity(0.25),
+                                                  borderRadius:
+                                                      BorderRadius.circular(6)),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8),
+                                                child: Center(
+                                                    child: Text(
+                                                  "${provider.businessCategories[i].name}",
+                                                  style: TextStyle(
+                                                      color: provider
+                                                                  .businessCategories[
+                                                                      i]
+                                                                  .id ==
+                                                              selected
+                                                          ? Colors.white
+                                                          : Colors.black54),
+                                                )),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ).toList(),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              // SizedBox(height: 20),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 0, horizontal: 12),
+                                child: Column(
+                                  children: [
+                                    ...List.generate(
+                                        provider.businessCategories.length,
+                                        (index) => Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                SizedBox(
+                                                  height: 30,
+                                                  key: _keys != null
+                                                      ? _keys![index]
+                                                      : null,
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 18.0),
+                                                  child: Text(
+                                                    "${provider.businessCategories[index].name}",
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 16,
+                                                        color: mainColor),
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  height: 12,
+                                                ),
+                                                ...List.generate(
+                                                    provider
+                                                            .businessCategories[
+                                                                index]
+                                                            .categoryProducts
+                                                            ?.length ??
+                                                        0, (index) {
+                                                  int i = index < 11
+                                                      ? index + 1
+                                                      : Random().nextInt(11) +
+                                                          1;
+                                                  return BuildSlideTransition(
+                                                      child: RestaurantFoodItem(
+                                                        index: storeType !=
+                                                                BUSINESS_TYPE_PHARMACY
+                                                            ? i
+                                                            : i + 11,
+                                                        type: storeType,
+                                                        product: provider
+                                                            .businessCategories[
+                                                                index]
+                                                            .categoryProducts![index],
+                                                      ),
+                                                      animationDuration:
+                                                          (index + 1) * 500,
+                                                      curve:
+                                                          Curves.elasticInOut,
+                                                      startPos: 2.0);
+                                                }).toList()
+                                              ],
+                                            )).toList(),
+                                  ],
+                                ),
+                              )
+                            ],
+                            SizedBox(
+                              height: 20,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ]),
-                )
-              ],
-            ),
-            onNotification: (ScrollNotification scroll) {
-              var currentContext = myKey.currentContext;
-              if (currentContext == null) return false;
+                    ]),
+                  )
+                ],
+              ),
+              onNotification: (ScrollNotification scroll) {
+                var currentContext = myKey.currentContext;
+                if (currentContext == null) return false;
 
-              var renderObject = currentContext.findRenderObject();
-              print(
-                  "in onNotification: ${RenderAbstractViewport.of(renderObject)}");
-
-              if (renderObject != null) {
-                final double yPosition = (renderObject as RenderBox)
-                    .localToGlobal(Offset.zero)
-                    .dy; // !
+                var renderObject = currentContext.findRenderObject();
                 print(
-                    'Widget is visible in the viewport at position: $yPosition');
-                if (yPosition <= 85) {
-                  if (!showOnTop) {
-                    setState(() {
-                      showOnTop = true;
-                      top = 55;
-                    });
-                    if (_controller!.status != AnimationStatus.forward) {
-                      _controller!.forward();
-                      print('forward animation');
-                    } else {
-                      _controller!.reverse();
-                      print('reverse animation');
+                    "in onNotification: ${RenderAbstractViewport.of(renderObject)}");
+
+                if (renderObject != null) {
+                  final double yPosition = (renderObject as RenderBox)
+                      .localToGlobal(Offset.zero)
+                      .dy; // !
+                  print(
+                      'Widget is visible in the viewport at position: $yPosition');
+                  if (yPosition <= 85) {
+                    if (!showOnTop) {
+                      setState(() {
+                        showOnTop = true;
+                        top = 55;
+                      });
+                      if (_controller!.status != AnimationStatus.forward) {
+                        _controller!.forward();
+                        print('forward animation');
+                      } else {
+                        _controller!.reverse();
+                        print('reverse animation');
+                      }
                     }
+                  } else {
+                    if (showOnTop)
+                      setState(() {
+                        showOnTop = false;
+                        top = 40;
+                      });
+                  }
+                  // do stuff...
+                } else {
+                  print('Widget is not visible.');
+                  // do stuff...
+                }
+
+                return false;
+
+                if (renderObject != _prevRenderObject) {
+                  RenderAbstractViewport? viewport =
+                      RenderAbstractViewport.of(renderObject);
+                  if (viewport != null) {
+                    _offsetToRevealBottom =
+                        viewport.getOffsetToReveal(renderObject!, 1.0).offset;
+                    _offsetToRevealTop =
+                        viewport.getOffsetToReveal(renderObject, 0.0).offset;
+                  }
+                }
+                print(
+                    "offsets: $_offsetToRevealBottom and $_offsetToRevealTop");
+
+                final offset = scroll.metrics.pixels;
+
+                if (_offsetToRevealBottom < offset &&
+                    offset < _offsetToRevealTop) {
+                  if (!showOnTop) setState(() => showOnTop = true);
+
+                  if (_controller!.status != AnimationStatus.forward) {
+                    _controller!.forward();
                   }
                 } else {
-                  if (showOnTop)
-                    setState(() {
-                      showOnTop = false;
-                      top = 40;
-                    });
+                  if (_controller!.status != AnimationStatus.reverse) {
+                    _controller!.reverse();
+                  }
                 }
-                // do stuff...
-              } else {
-                print('Widget is not visible.');
-                // do stuff...
-              }
-
-              return false;
-
-              if (renderObject != _prevRenderObject) {
-                RenderAbstractViewport? viewport =
-                    RenderAbstractViewport.of(renderObject);
-                if (viewport != null) {
-                  _offsetToRevealBottom =
-                      viewport.getOffsetToReveal(renderObject!, 1.0).offset;
-                  _offsetToRevealTop =
-                      viewport.getOffsetToReveal(renderObject, 0.0).offset;
-                }
-              }
-              print("offsets: $_offsetToRevealBottom and $_offsetToRevealTop");
-
-              final offset = scroll.metrics.pixels;
-
-              if (_offsetToRevealBottom < offset &&
-                  offset < _offsetToRevealTop) {
-                if (!showOnTop) setState(() => showOnTop = true);
-
-                if (_controller!.status != AnimationStatus.forward) {
-                  _controller!.forward();
-                }
-              } else {
-                if (_controller!.status != AnimationStatus.reverse) {
-                  _controller!.reverse();
-                }
-              }
-              return false;
-            },
-          ),
-          // if (showOnTop)
+                return false;
+              },
+            ),
+            // if (showOnTop)
             AnimatedPositioned(
               // key: myKey,
               duration: Duration(milliseconds: 600),
@@ -462,7 +540,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
                       scrollDirection: Axis.horizontal,
                       children: [
                         ...List.generate(
-                          categories.length,
+                          provider.businessCategories.length,
                           (i) => GestureDetector(
                             onTap: () {
                               if (_keys != null) if (_keys![i].currentContext !=
@@ -479,7 +557,8 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
                                   horizontal: 4.0, vertical: 8),
                               child: Container(
                                 decoration: BoxDecoration(
-                                    color: categories[i] == selected
+                                    color: provider.businessCategories[i].id ==
+                                            selected
                                         ? mainColor
                                         : mainColorLight.withOpacity(0.25),
                                     borderRadius: BorderRadius.circular(6)),
@@ -487,11 +566,13 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
                                   padding: const EdgeInsets.all(8),
                                   child: Center(
                                       child: Text(
-                                    "${categories[i]}",
+                                    "${provider.businessCategories[i].name}",
                                     style: TextStyle(
-                                        color: categories[i] == selected
-                                            ? Colors.white
-                                            : Colors.black54),
+                                        color:
+                                            provider.businessCategories[i].id ==
+                                                    selected
+                                                ? Colors.white
+                                                : Colors.black54),
                                   )),
                                 ),
                               ),
@@ -505,8 +586,9 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
                 ),
               ),
             )
-        ],
-      ),
+          ],
+        );
+      }),
     );
   }
 }
@@ -516,11 +598,12 @@ class RestaurantFoodItem extends StatelessWidget {
     Key? key,
     required this.index,
     required this.type,
-
+    required this.product,
   }) : super(key: key);
 
   final int index;
   final String type;
+  final CategoryProduct product;
 
   @override
   Widget build(BuildContext context) {
@@ -528,8 +611,9 @@ class RestaurantFoodItem extends StatelessWidget {
     String title = "Duis Aute";
     String id = "${Random().nextInt(1000) + (index * pi)}";
     return GestureDetector(
-      onTap: (){
-        Navigator.pushNamed(context, food_detail_screen, arguments: {"image": image, "title": title, "id": id, "type": type});
+      onTap: () {
+        Navigator.pushNamed(context, food_detail_screen,
+            arguments: {"product": product, "type": type});
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 6.0),
@@ -538,29 +622,31 @@ class RestaurantFoodItem extends StatelessWidget {
             Expanded(
                 flex: 3,
                 child: Hero(
-                  tag: ValueKey("${id}"),
-                  child: Image.asset(
-                    image,
-                    // "assets/images/temp/temp${index < 11 ? index + 1 : 1}.jpg",
-                  ),
+                  tag: ValueKey("${product.id}"),
+                  child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                      child: ImageWithPlaceholder(image: product.image,
+                          prefix: MJ_Apis.productImgPath,
+                          width: 110, fit: BoxFit.fitWidth)),
                 )),
             Expanded(
-              flex: 7,
+              flex: 8,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // SizedBox(height: 12,),
                     Text(
-                      title,
+                      "${product.name}",
                       style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
                           color: Colors.black54),
                     ),
                     Text(
-                      "Lorem ipsum dolor sit amet, consectetur adipiscing",
+                      "${product.description}",
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(fontSize: 13, color: Colors.black54),
@@ -571,14 +657,14 @@ class RestaurantFoodItem extends StatelessWidget {
               ),
             ),
             Expanded(
-              flex: 3,
+              flex: 4,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      "QAR 23",
+                      "QAR ${product.price}",
                       style: TextStyle(
                           fontWeight: FontWeight.w500,
                           fontSize: 15,
@@ -616,18 +702,21 @@ class RestaurantFoodItem extends StatelessWidget {
   }
 }
 
+
+
 class MySliverAppBar extends SliverPersistentHeaderDelegate {
   final double expandedHeight;
   final String text;
   final setTop;
   final setShowOnTop;
+  final BusinessDetailProvider provider;
 
   MySliverAppBar(
       {required this.expandedHeight,
       required this.setTop,
-        this.text = '',
-        required this.setShowOnTop
-      });
+      this.text = '',
+      required this.setShowOnTop,
+      required this.provider});
 
   @override
   Widget build(
@@ -637,7 +726,9 @@ class MySliverAppBar extends SliverPersistentHeaderDelegate {
       clipBehavior: Clip.none,
       fit: StackFit.expand,
       children: [
-        Image.asset("assets/images/restaurant_bg.jpg", fit: BoxFit.cover),
+        Image.network(
+            "${MJ_Apis.restaurantCoverImgPath}${provider.business?.coverPhoto}",
+            fit: BoxFit.cover),
         if (shrinkOffset / expandedHeight > 0.5)
           Builder(builder: (context) {
             print("in builder");
@@ -657,7 +748,9 @@ class MySliverAppBar extends SliverPersistentHeaderDelegate {
                     SizedBox(
                       width: 50,
                     ),
-                    RoundedAvatar(assetPath: "assets/images/mac_logo.jpg"),
+                    RoundedNetworkAvatar(
+                        url:
+                            "${MJ_Apis.restaurantImgPath}${provider.business?.logo}"),
                     // Text("${shrinkOffset / expandedHeight}")
                   ],
                 ),
@@ -671,8 +764,8 @@ class MySliverAppBar extends SliverPersistentHeaderDelegate {
           left: MediaQuery.of(context).size.width / 4 - 75,
           child: Opacity(
             opacity: (1 - shrinkOffset / expandedHeight),
-            child: RoundedAvatar(
-                assetPath: "assets/images/mac_logo.jpg",
+            child: RoundedNetworkAvatar(
+                url: "${MJ_Apis.restaurantImgPath}${provider.business?.logo}",
                 height: 70.0,
                 width: 70.0),
           ),

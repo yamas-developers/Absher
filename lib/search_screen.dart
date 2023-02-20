@@ -120,20 +120,20 @@ class _SearchScreenState extends State<SearchScreen> {
                 ],
               ),
             ),
-            Padding(
+            ...safeguardConnectivityAndService(context: context, widgets: [Padding(
               padding: const EdgeInsets.only(left: 18, right: 18, top: 18),
               child: Column(
                 children: [
                   ...List.generate(
                       4,
-                      (index) => BuildSlideTransition(
+                          (index) => BuildSlideTransition(
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 6.0),
                             child: Row(
                               children: [
                                 RoundedAvatar(
                                   assetPath:
-                                      "assets/images/temp/ellipse${index < 3 ? index : 1}.png",
+                                  "assets/images/temp/ellipse${index < 3 ? index : 1}.png",
                                   color: mainColor,
                                 ),
                                 Padding(
@@ -141,7 +141,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                       horizontal: 8.0, vertical: 4),
                                   child: Column(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    CrossAxisAlignment.start,
                                     children: [
                                       // SizedBox(height: 12,),
                                       Text(
@@ -172,54 +172,54 @@ class _SearchScreenState extends State<SearchScreen> {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 14.0, right: 14, top: 18),
-              child: Text(
-                getString("search__top_searched"),
-                style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    color: darkGreyColor),
+              Padding(
+                padding: const EdgeInsets.only(left: 14.0, right: 14, top: 18),
+                child: Text(
+                  getString("search__top_searched"),
+                  style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      color: darkGreyColor),
+                ),
               ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            SizedBox(
-              height: 170,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  ...List.generate(
-                      4,
-                      (index) => Container(
-                            decoration: BoxDecoration(
-                                // color: Colors.red,
-                                borderRadius: BorderRadius.circular(15),
-                                boxShadow: [
-                                  BoxShadow(
-                                      color: lightGreyColor.withOpacity(0.35),
-                                      blurRadius: 12,
-                                      offset: Offset(2, 4))
-                                ]),
-                            padding: EdgeInsets.only(
-                                left: index == 0 ? 14 : 4, right: 4),
-                            child: ClipRRect(
+              SizedBox(
+                height: 10,
+              ),
+              SizedBox(
+                height: 170,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  children: [
+                    ...List.generate(
+                        4,
+                            (index) => Container(
+                          decoration: BoxDecoration(
+                            // color: Colors.red,
                               borderRadius: BorderRadius.circular(15),
-                              child: Image.asset(
-                                "assets/images/temp/rectangle${index < 3 ? index : 1}.png",
-                                height: 150,
-                                width: 130,
-                                fit: BoxFit.fill,
-                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                    color: lightGreyColor.withOpacity(0.35),
+                                    blurRadius: 12,
+                                    offset: Offset(2, 4))
+                              ]),
+                          padding: EdgeInsets.only(
+                              left: index == 0 ? 14 : 4, right: 4),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(15),
+                            child: Image.asset(
+                              "assets/images/temp/rectangle${index < 3 ? index : 1}.png",
+                              height: 150,
+                              width: 130,
+                              fit: BoxFit.fill,
                             ),
-                          ))
-                ],
+                          ),
+                        ))
+                  ],
+                ),
               ),
-            ),
-            SizedBox(
-              height: 35,
-            ),
+              SizedBox(
+                height: 35,
+              ),])
           ],
         ),
       ),

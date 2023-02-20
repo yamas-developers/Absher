@@ -1,13 +1,16 @@
 import 'dart:developer';
 import 'dart:ui' as ui;
 import 'package:absher/helpers/constants.dart';
+import 'package:absher/providers/settings/settings_provider.dart';
+import 'package:absher/ui/common_widgets/misc_widgets.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
+import '../providers/location/location_provider.dart';
 import 'app_loader.dart';
-
 
 double getSize(
     BuildContext context, double width, double maxWidth, double minWidth) {
@@ -179,11 +182,16 @@ Widget smartRefreshFooter(BuildContext context, LoadStatus? mode) {
   return Center(child: body);
 }
 
-Widget sbh(v){
-  return SizedBox(height: v.toDouble(),);
+Widget sbh(v) {
+  return SizedBox(
+    height: v.toDouble(),
+  );
 }
-Widget sbw(v){
-  return SizedBox(width: v.toDouble(),);
+
+Widget sbw(v) {
+  return SizedBox(
+    width: v.toDouble(),
+  );
 }
 
 void showToast(String message) {
@@ -207,14 +215,15 @@ String getString(String key) {
   }
 }
 
-bool isLtr(context){
+bool isLtr(context) {
   return Directionality.of(context).toString() == 'TextDirection.ltr';
 }
 
-getTextDirection(context){
+getTextDirection(context) {
   return isLtr(context) ? ui.TextDirection.ltr : ui.TextDirection.rtl;
 }
-getTextAlignStart(context){
+
+getTextAlignStart(context) {
   return isLtr(context) ? TextAlign.left : TextAlign.right;
 }
 
@@ -247,6 +256,7 @@ double convertDouble(num) {
     return 0;
   }
 }
+
 int convertNumber(num) {
   try {
     // print(num);
@@ -266,4 +276,79 @@ int convertNumber(num) {
     print(e);
     return 0;
   }
+}
+
+showProgressDialog(context, message, {isDismissable = true}) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (buildContext) => AlertDialog(
+      content: Row(
+        // direction: Axis.horizontal,
+        children: [
+          SizedBox(
+            height: 40,
+            width: 40,
+            // child: Image.asset("assets/images/logo.gif"),
+          ),
+          SizedBox(
+            width: 10,
+          ),
+          Flexible(child: Text("${message}")),
+        ],
+      ),
+    ),
+  );
+}
+
+hideProgressDialog(context) {
+  Navigator.of(context).pop();
+}
+
+List<Widget> safeguardConnectivityAndService(
+    {required BuildContext context, required List<Widget> widgets}) {
+  SettingsProvider settingsProvider = context.read<SettingsProvider>();
+  if (settingsProvider.loading) return [LoadingWidget()];
+  if (!settingsProvider.isConnected) return [NoNetworkWidget()];
+  if (!settingsProvider.locationPermission)
+    return [NoLocationPermissionsWidget()];
+  else if (!settingsProvider.operatingArea /*||true*/)
+    return [NoServiceAreaWidget()];
+  return widgets;
+}
+
+void logInfo(msg) {
+  debugPrint('\x1B[34m$msg\x1B[0m');
+}
+
+// Green text
+void logSuccess(msg) {
+  debugPrint('\x1B[32m$msg\x1B[0m');
+}
+
+// Yellow text
+void logWarning(msg) {
+  debugPrint('\x1B[33m$msg\x1B[0m');
+}
+
+// Red text
+void logError(msg) {
+  debugPrint('\x1B[31m$msg\x1B[0m');
+}
+
+getSettingsData({required BuildContext context, showToast = false}) async {
+  LocationProvider locProvider = context.read<LocationProvider>();
+  SettingsProvider settingsProvider = context.read<SettingsProvider>();
+
+  if (!settingsProvider.isInitialized) settingsProvider.loading = true;
+  await settingsProvider.requestPermissions(toast: showToast);
+
+  if (settingsProvider.locationPermission) {
+    logSuccess("location permission available");
+    await locProvider.getCurrentLocation();
+    if (locProvider.currentLocation != null) {
+      await settingsProvider.getSettings(locProvider.currentLocation);
+    }
+  }
+  settingsProvider.loading = false;
 }

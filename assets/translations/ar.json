@@ -32,6 +32,7 @@
   "language__select_language": "حدد لغتك",
   "language__city":"مدينة",
   "language__current_lang":"اللغة العربية هي الآن لغة التطبيق",
+  "language__address":"تبوك",
 
 
   "auth_sign_in_continue": "تسجيل الدخول للمتابعة",
@@ -41,7 +42,8 @@
   "auth__login": "تسجيل الدخول",
   "auth__sign_up": "اشتراك",
   "auth__forgot_password": "هل نسيت كلمة السر؟",
-  "auth__full_name": "الاسم الكامل",
+  "auth__first_name": "الاسم الاول",
+  "auth__last_name": "الكنية",
   "auth__email_address": "عنوان البريد الالكترونى",
   "auth__confirm_password": "تأكيد كلمة المرور",
   "auth__sign_up_agree_terms": "بالتسجيل ، فإنك توافق على الشروط والأحكام.",

@@ -63,8 +63,9 @@ class _LocationBottomViewState extends State<LocationBottomView> {
           ListTile(
             leading: Icon(Icons.gps_fixed),
             title: Text(getString('home__use_current_location')),
-            onTap: () {
+            onTap: ()  {
               Navigator.pushNamed(context, map_view);
+              // Navigator.pop(context);
             },
           ),
           ListTile(

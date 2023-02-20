@@ -11,6 +11,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:provider/provider.dart';
 import '../../helpers/public_methods.dart';
+import '../../providers/settings/settings_provider.dart';
 
 class MapContainer extends StatefulWidget {
   final String? lat;
@@ -33,6 +34,7 @@ class _MapContainerState extends State<MapContainer> {
   LatLng? _initialPosition;
   LatLng? _lastMapPosition;
   bool cameraMoving = false;
+  bool loading = false;
 
   Future<Position> getUserCurrentLocation() async {
     await Geolocator.requestPermission()
@@ -107,7 +109,10 @@ class _MapContainerState extends State<MapContainer> {
   _onCameraMove(CameraPosition position) {
     log("MJ: onCamerMove: ${position.target}");
     _lastMapPosition = position.target;
-    if(!cameraMoving)setState(() {cameraMoving = true;});
+    if (!cameraMoving)
+      setState(() {
+        cameraMoving = true;
+      });
   }
 
   // _onCameraMove(CameraPosition position) {
@@ -139,8 +144,6 @@ class _MapContainerState extends State<MapContainer> {
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -159,19 +162,24 @@ class _MapContainerState extends State<MapContainer> {
             onMapCreated: (GoogleMapController controller) {
               _controller.complete(controller);
             },
-            onCameraIdle: (){
-              if(cameraMoving)
-              setState(() {
-                cameraMoving = false;
-              });
+            onCameraIdle: () {
+              if (cameraMoving)
+                setState(() {
+                  cameraMoving = false;
+                });
               print('MJ: camera idle: ');
             },
-            circles: Set.from([Circle( circleId: CircleId('currentCircle'),
-              center: _initialPosition ?? LatLng(0, 0),
-              radius: 1000,
-              fillColor: Colors.blue.shade100.withOpacity(0.6),
-              strokeColor:  Colors.blue.shade100.withOpacity(0.6),
-            ),],),
+            circles: Set.from(
+              [
+                Circle(
+                  circleId: CircleId('currentCircle'),
+                  center: _initialPosition ?? LatLng(0, 0),
+                  radius: 1000,
+                  fillColor: Colors.blue.shade100.withOpacity(0.6),
+                  strokeColor: Colors.blue.shade100.withOpacity(0.6),
+                ),
+              ],
+            ),
           ),
           Align(
             alignment: Alignment.center,
@@ -179,34 +187,34 @@ class _MapContainerState extends State<MapContainer> {
               clipBehavior: Clip.none,
               // mainAxisSize: MainAxisSize.min,
               children: [
-              Positioned(
-                top: cameraMoving? 65 : 35,
-                left: cameraMoving ? 10 : 13,
-                child: Container(
-                  padding: EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                      // color: Colors.grey.withOpacity(0.3),
-                    color: Colors.transparent,
-                      shape: BoxShape.circle,
-                    border: Border.all(color: Colors.grey.withOpacity(cameraMoving ? 0.3 : 0.1))
-                  ),
-
+                Positioned(
+                  top: cameraMoving ? 65 : 35,
+                  left: cameraMoving ? 10 : 13,
                   child: Container(
-                    height: cameraMoving? 20: 8,
-                    width: cameraMoving? 20: 8,
+                    padding: EdgeInsets.all(5),
                     decoration: BoxDecoration(
-                      color: Colors.grey.withOpacity(cameraMoving ? 0.4 : 0.2),
-                      shape: BoxShape.circle
+                        // color: Colors.grey.withOpacity(0.3),
+                        color: Colors.transparent,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                            color: Colors.grey
+                                .withOpacity(cameraMoving ? 0.3 : 0.1))),
+                    child: Container(
+                      height: cameraMoving ? 20 : 8,
+                      width: cameraMoving ? 20 : 8,
+                      decoration: BoxDecoration(
+                          color:
+                              Colors.grey.withOpacity(cameraMoving ? 0.4 : 0.2),
+                          shape: BoxShape.circle),
                     ),
                   ),
                 ),
-              ),
-
-                Image.asset("assets/icons/map_pin2.png", color: cameraMoving ? mainColor: Colors.black,height: cameraMoving ? 50 : 46),
+                Image.asset("assets/icons/map_pin2.png",
+                    color: cameraMoving ? mainColor : Colors.black,
+                    height: cameraMoving ? 50 : 46),
               ],
             ).marginOnly(bottom: cameraMoving ? 80 : 50),
           ),
-
           Visibility(
             visible: !cameraMoving,
             child: Align(
@@ -216,25 +224,49 @@ class _MapContainerState extends State<MapContainer> {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                    color: Colors.black26,
-borderRadius: BorderRadius.circular(8)
-                    ),
+                        color: Colors.black26,
+                        borderRadius: BorderRadius.circular(8)),
                     padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                    child: Text("Please select the exact current location then click 'Next'.",
+                    child: Text(
+                      "Please select the exact current location then click 'Next'.",
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.white,
-                      fontWeight: FontWeight.w600
-                    ),),
+                          color: Colors.white, fontWeight: FontWeight.w600),
+                    ),
                   ).marginSymmetric(horizontal: 30, vertical: 20),
-                  RoundedCenterButtton(onPressed: () async {
-                    await context.read<LocationProvider>().setCurrentLocation(_lastMapPosition);
-                    Navigator.pop(context);
-                  }, title: "Next").marginOnly(bottom: 20),
+                  RoundedCenterButtton(
+                          onPressed: () async {
+                            if(loading)return;
+                            setState(() {loading = true;});
+                            try{
+                              await context
+                                  .read<LocationProvider>()
+                                  .setCurrentLocation(_lastMapPosition);
+
+                              LocationProvider locProvider =
+                              context.read<LocationProvider>();
+                              SettingsProvider settingsProvider =
+                              context.read<SettingsProvider>();
+
+                              if (locProvider.currentLocation != null) {
+                                await settingsProvider
+                                    .getSettings(locProvider.currentLocation);
+                              }
+                            }catch(e){
+                              logError("error in map screen: ${e}");
+                            }finally{
+                            setState(() {loading = false;});
+                            Navigator.pop(context);
+                            }
+
+                          },
+                          title: "Next")
+                      .marginOnly(bottom: 20),
                 ],
               ),
             ),
-          )
+          ),
+          if(loading)LinearProgressIndicator(),
         ],
       ),
     );

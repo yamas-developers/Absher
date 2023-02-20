@@ -51,7 +51,7 @@ class LocationProvider extends ChangeNotifier {
   }
 
   setCurrentLocation(location) async {
-    currentLocation = LatLng(location.latitude, location.longitude);
+    _currentLocation = LatLng(location.latitude, location.longitude);
     List<Placemark> placemarks =
         await placemarkFromCoordinates(currentLocation.latitude, currentLocation.longitude);
     String addr = "${placemarks.reversed.last.subLocality} ${placemarks.reversed.last.subAdministrativeArea}, ${placemarks.reversed.last.administrativeArea}";
