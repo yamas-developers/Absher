@@ -31,8 +31,8 @@ class _HomeScreenState extends State<HomeScreen> {
   int _current = 0;
 
   getPageData() async {
-   getSettingsData(context: context);
-   // getSettingsData(context: context);
+    bool flag = await context.read<LocationProvider>().getAddresses();
+    getSettingsData(context: context, shouldGetCurrentLocation: !flag);
   }
 
   @override
@@ -187,9 +187,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Stack(
                                       alignment: Alignment.bottomCenter,
                                       children: [
-                                        Image.network(
-                                          '${MJ_Apis.bannerImgPath}${settingsProvider.banners![index].image}',
+                                        ImageWithPlaceholder(
+                                          prefix: MJ_Apis.bannerImgPath,
+                                          image: '${settingsProvider.banners![index].image}',
                                           width: getSmallestSide(context),
+                                          height: null,
                                           fit: BoxFit.cover,
                                         ),
                                         Container(
@@ -454,7 +456,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 SizedBox(
                   height: 20,
                 ),
-                Padding(
+               if(false)
+               ...[ Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 18),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -509,7 +512,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-                ),
+                ),],
                 SizedBox(
                   height: 20,
                 ),

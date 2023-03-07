@@ -12,6 +12,11 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import '../providers/location/location_provider.dart';
 import 'app_loader.dart';
 
+String infoIcon = 'assets/icons/alert/info.png';
+String successIcon = 'assets/icons/alert/success.png';
+String warningIcon = 'assets/icons/alert/warning.png';
+String errorIcon = 'assets/icons/alert/error.png';
+enum AlertType { INFO, WARNING, ERROR, SUCCESS }
 double getSize(
     BuildContext context, double width, double maxWidth, double minWidth) {
   double mwidth = MediaQuery.of(context).size.width * width;
@@ -52,11 +57,30 @@ isPortrait(context) {
 }
 
 showAlertDialog(context, title, message,
-    {okButtonText = 'Ok',
+    {type = AlertType.INFO,
+      okButtonText = 'Ok',
     onPress = null,
     showCancelButton = true,
     dismissible = true}) {
   String icon;
+
+  switch (type) {
+    case AlertType.INFO:
+      icon = infoIcon;
+      break;
+    case AlertType.SUCCESS:
+      icon = successIcon;
+      break;
+    case AlertType.WARNING:
+      icon = warningIcon;
+      break;
+    case AlertType.ERROR:
+      icon = errorIcon;
+      break;
+    default:
+      icon = infoIcon;
+  }
+
   showGeneralDialog(
       context: context,
       barrierLabel: "Barrier",
@@ -99,19 +123,22 @@ showAlertDialog(context, title, message,
                           SizedBox(
                             height: 4,
                           ),
-                          Center(
-                            child: Image.asset(
-                              'assets/icons/tick_filled_icon.png',
-                              width: 50,
-                            ),
-                          ),
+                          // Center(
+                          //   child: Image.asset(
+                          //     icon,
+                          //     width: 50,
+                          //   ),
+                          // ),
                           SizedBox(
-                            height: 10,
+                            height: 20,
                           ),
                           Text(
                             "${title}",
                             style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
+                                fontSize: 18, fontWeight: FontWeight.w600),
+                          ),
+                          SizedBox(
+                            height: 20,
                           ),
                           Padding(
                             padding: const EdgeInsets.only(left: 8.0, right: 8),
@@ -309,9 +336,9 @@ List<Widget> safeguardConnectivityAndService(
     {required BuildContext context, required List<Widget> widgets}) {
   SettingsProvider settingsProvider = context.read<SettingsProvider>();
   if (settingsProvider.loading) return [LoadingWidget()];
-  if (!settingsProvider.isConnected) return [NoNetworkWidget()];
   if (!settingsProvider.locationPermission)
     return [NoLocationPermissionsWidget()];
+  if (!settingsProvider.isConnected/*||true*/) return [NoNetworkWidget()];
   else if (!settingsProvider.operatingArea /*||true*/)
     return [NoServiceAreaWidget()];
   return widgets;
@@ -336,7 +363,7 @@ void logError(msg) {
   debugPrint('\x1B[31m$msg\x1B[0m');
 }
 
-getSettingsData({required BuildContext context, showToast = false}) async {
+getSettingsData({required BuildContext context, showToast = false, bool shouldGetCurrentLocation = true}) async {
   LocationProvider locProvider = context.read<LocationProvider>();
   SettingsProvider settingsProvider = context.read<SettingsProvider>();
 
@@ -345,6 +372,7 @@ getSettingsData({required BuildContext context, showToast = false}) async {
 
   if (settingsProvider.locationPermission) {
     logSuccess("location permission available");
+    if(shouldGetCurrentLocation)
     await locProvider.getCurrentLocation();
     if (locProvider.currentLocation != null) {
       await settingsProvider.getSettings(locProvider.currentLocation);

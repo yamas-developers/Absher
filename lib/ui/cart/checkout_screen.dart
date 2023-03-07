@@ -1,12 +1,21 @@
 import 'package:absher/helpers/public_methods.dart';
+import 'package:absher/providers/cart/cart_provider.dart';
 import 'package:absher/ui/common_widgets/rounded_center_button.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 
+import '../../api/mj_apis.dart';
 import '../../helpers/constants.dart';
 import '../../helpers/route_constants.dart';
+import '../../providers/location/location_provider.dart';
+import '../../providers/settings/settings_provider.dart';
 import '../common_widgets/avatar.dart';
+import '../common_widgets/build_slide_transition.dart';
+import '../common_widgets/cart_item.dart';
 import '../common_widgets/checkout_amount_row.dart';
-import '../common_widgets/rounded_borders_button.dart';
+import '../common_widgets/comon.dart';
+import '../common_widgets/map_widget.dart';
 
 class ChecoutScreen extends StatefulWidget {
   const ChecoutScreen({Key? key}) : super(key: key);
@@ -35,364 +44,467 @@ class _ChecoutScreenState extends State<ChecoutScreen> {
 
   @override
   Widget build(BuildContext context) {
+    int animationDuration = 300;
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 0,
         backgroundColor: mainColor,
       ),
-      body: SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 6,
-            ),
-            Container(
-              padding: EdgeInsets.fromLTRB(0, 15, 18, 0),
-              child: Flex(
-                direction: Axis.horizontal,
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: Image.asset(
-                            "assets/icons/back_arrow_icon.png",
-                            width: 24,
-                            height: 24,
-                          ),
-                        ),
-                        SizedBox(
-                          width: 8,
-                        ),
-                      ],
+      body: Consumer<SettingsProvider>(
+        builder: (context, settingsProvider, _) {
+          return Consumer<LocationProvider>(builder: (context, locProvider, _) {
+            return Consumer<CartProvider>(builder: (context, provider, _) {
+              return SingleChildScrollView(
+                physics: BouncingScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 6,
                     ),
-                  ),
-                  Expanded(
-                    flex: 8,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Flexible(
-                            child: Text(
-                          "Check out",
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: mainColor,
-                              fontWeight: FontWeight.w500),
-                        )),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 26,
-            ),
-            Row(
-              children: [
-                SizedBox(
-                  width: 10,
-                ),
-                RoundedAvatar(assetPath: "assets/images/mac_logo.jpg"),
-                SizedBox(
-                  width: 10,
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Lorem ipsum dolor sit amet",
-                        style: TextStyle(
-                            fontSize: 16,
-                            color: blackFontColor,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Container(
+                      padding: EdgeInsets.fromLTRB(0, 15, 18, 0),
+                      child: Flex(
+                        direction: Axis.horizontal,
                         children: [
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 6),
-                            decoration: BoxDecoration(
-                                color: mainColor,
-                                borderRadius: BorderRadius.circular(4)),
+                          Expanded(
+                            flex: 1,
                             child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                Image.asset(
-                                  "assets/icons/star.png",
-                                  height: 18,
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Image.asset(
+                                    "assets/icons/back_arrow_icon.png",
+                                    width: 24,
+                                    height: 24,
+                                  ),
                                 ),
                                 SizedBox(
-                                  width: 6,
+                                  width: 8,
                                 ),
-                                Text(
-                                  "3.6",
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w500),
-                                )
                               ],
                             ),
                           ),
-                          Row(
+                          Expanded(
+                            flex: 8,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Flexible(
+                                    child: Text(
+                                  "Check out",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: mainColor,
+                                      fontWeight: FontWeight.w500),
+                                )),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 26,
+                    ),
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 10,
+                        ),
+                        RoundedNetworkAvatar(
+                            url:
+                                "${MJ_Apis.restaurantImgPath}${provider.currentStore?.logo}"),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Image.asset(
-                                "assets/icons/time.png",
-                                height: 18,
+                              Text(
+                                "${provider.currentStore?.name ?? "Restaurant: N/A"}",
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: blackFontColor,
+                                    fontWeight: FontWeight.w600),
                               ),
                               SizedBox(
-                                width: 2,
+                                height: 10,
                               ),
-                              Text(
-                                "Delivery: 40 mins",
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: mainColor,
-                                    fontWeight: FontWeight.w600),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 6),
+                                    decoration: BoxDecoration(
+                                        color: mainColor,
+                                        borderRadius: BorderRadius.circular(4)),
+                                    child: Row(
+                                      children: [
+                                        Image.asset(
+                                          "assets/icons/star.png",
+                                          height: 18,
+                                        ),
+                                        SizedBox(
+                                          width: 6,
+                                        ),
+                                        Text(
+                                          "${provider.currentStore?.ratingCount ?? "0.0"}",
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w500),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      Image.asset(
+                                        "assets/icons/time.png",
+                                        height: 18,
+                                      ),
+                                      SizedBox(
+                                        width: 2,
+                                      ),
+                                      Text(
+                                        "Delivery: ${provider.currentStore?.deliveryTime ?? "0-0"} mins",
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: mainColor,
+                                            fontWeight: FontWeight.w600),
+                                      )
+                                    ],
+                                  ),
+                                ],
                               )
                             ],
                           ),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  width: 20,
-                ),
-              ],
-            ),
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18.0, vertical: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Image.asset(
-                        "assets/icons/pin.png",
-                        color: mainColor,
-                        height: 26,
-                      ),
-                      Text(
-                        "Delivery Address",
-                        style: TextStyle(
-                            fontSize: 15,
-                            color: mainColor,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      Spacer(),
-                      TextButton(onPressed: (){}, child: Text("Update Address", style: TextStyle(
-                        decoration: TextDecoration.underline
-                      ),))
-                    ],
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    "Home",
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: blackFontColor,
-                        fontWeight: FontWeight.w600),
-                  ),
-                  SizedBox(
-                    width: getWidth(context) * 0.7,
-                    child: Text(
-                      "Home 251 west Road , London 2nd Floor, 215/52 , Flat 2G",
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: blackFontColor,
-                          fontWeight: FontWeight.w500),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Image.asset(
-                    "assets/images/temp/maps.png",
-                    height: 140,
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                    decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              color: darkGreyColor.withOpacity(0.3),
-                              offset: Offset(0, 2),
-                              blurRadius: 8)
-                        ],
-                        borderRadius: BorderRadius.circular(12),
-                        color: Colors.white),
-                    child: Column(
-                      children: [
-                        CheckoutAmountRow(title: "Cart Total", amount: "600"),
-                        SizedBox(
-                          height: 10,
                         ),
-                        CheckoutAmountRow(
-                            title: "Delivery Charge", amount: "30"),
                         SizedBox(
-                          height: 10,
+                          width: 20,
                         ),
-                        CheckoutAmountRow(title: "Total Amount", amount: "630"),
                       ],
                     ),
-                  ),
-                  SizedBox(
-                    height: 30,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      RoundBordersButton(
-                        title: "Deliver Now",
-                        onPressed: () {
-                          setState(() {
-                            deliverNow = true;
-                            selectedTimeIndex = -1;
-                          });
-                        },
-                        fontSize: 16,
-                        verticalPadding: 14,
-                        selected: selectedTimeIndex == -1,
-                        radius: 50,
-                      ),
-                      SizedBox(
-                        width: 12,
-                      ),
-                      RoundBordersButton(
-                        title: "Deliver Later",
-                        onPressed: () {
-                          _modalBottomSheetMenu(
-                              context);
-                          // setState(() {
-                          //   deliverNow = false;
-                          // });
-                        },
-                        fontSize: 16,
-                        verticalPadding: 14,
-                        selected: selectedTimeIndex != -1,
-                        radius: 50,
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 30,
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                    decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                              color: darkGreyColor.withOpacity(0.3),
-                              offset: Offset(0, 2),
-                              blurRadius: 8)
-                        ],
-                        borderRadius: BorderRadius.circular(50),
-                        color: Colors.white),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              "Add Promo Code",
+                    Padding(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 18.0, vertical: 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Image.asset(
+                                "assets/icons/pin.png",
+                                color: mainColor,
+                                height: 26,
+                              ),
+                              Text(
+                                "Delivery Address",
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    color: mainColor,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                              Spacer(),
+                              TextButton(
+                                  onPressed: () {
+                                    modalBottomSheetLocation(context);
+                                  },
+                                  child: Text(
+                                    "Update Address",
+                                    style: TextStyle(
+                                        decoration: TextDecoration.underline),
+                                  ))
+                            ],
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            "${locProvider.city}",
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: blackFontColor,
+                                fontWeight: FontWeight.w600),
+                          ),
+                          SizedBox(
+                            width: getWidth(context) * 0.7,
+                            child: Text(
+                              "${locProvider.address}",
                               style: TextStyle(
                                   fontSize: 16,
                                   color: blackFontColor,
-                                  fontWeight: FontWeight.w600),
+                                  fontWeight: FontWeight.w500),
                             ),
-                            Spacer(),
-                            Image.asset(
-                              "assets/icons/percentage_icon.png",
-                              height: 25,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Container(
+                            height: 160,
+                            margin: EdgeInsets.all(0),
+                            decoration: BoxDecoration(
+                              boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.2),
+                                  spreadRadius: 3, blurRadius: 4,)]
                             ),
-                          ],
-                        ),
-                      ],
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: MapWidget(
+                                  markerLocation: locProvider.currentLocation,key: UniqueKey(),),
+                            ),
+                          ),
+                          // Image.asset(
+                          //   "assets/images/temp/maps.png",
+                          //   height: 140,
+                          // ),
+                          SizedBox(
+                            height: 24,
+                          ),
+                          Text(
+                            "Cart Products",
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: blackFontColor,
+                                fontWeight: FontWeight.w600),
+                          ).marginOnly(left: 10),
+                          Padding(
+                            padding: const EdgeInsets.all(0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  // color: mainColorLight,
+                                  borderRadius: BorderRadius.circular(14)),
+                              child: Column(
+                                children: [
+                                  ...List.generate(
+                                      provider.list.length,
+                                      (index) => BuildSlideTransition(
+                                            child: Padding(
+                                              padding: const EdgeInsets.symmetric(
+                                                  vertical: 6.0),
+                                              child: CartItem(
+                                                bgColor: mainColorLight,
+                                                item: provider.list[index],
+                                                onIncrease: () {
+                                                  int q = convertNumber(provider
+                                                          .list[index].qty) +
+                                                      1;
+                                                  provider
+                                                      .updateProductCartQuantity(
+                                                          provider.list[index].id!,
+                                                          q);
+                                                },
+                                                onDecrease: () {
+                                                  int q = convertNumber(provider
+                                                          .list[index].qty) -
+                                                      1;
+                                                  provider
+                                                      .updateProductCartQuantity(
+                                                          provider.list[index].id!,
+                                                          q);
+                                                },
+                                                onDelete: () {
+                                                  provider.removeFromCart(
+                                                      provider.list[index].id!);
+                                                  showToast(
+                                                      "Item removed from cart");
+                                                },
+                                              ),
+                                            ),
+                                            animationDuration: animationDuration +=
+                                                300,
+                                            curve: Curves.elasticInOut,
+                                            startPos: index % 2 == 0 ? 4 : -4,
+                                          )),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Container(
+                            padding:
+                                EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                            decoration: BoxDecoration(
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: darkGreyColor.withOpacity(0.3),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 8)
+                                ],
+                                borderRadius: BorderRadius.circular(12),
+                                color: Colors.white),
+                            child: Column(
+                              children: [
+                                CheckoutAmountRow(
+                                    title: "Cart Total",
+                                    amount: "${provider.cartTotal}"),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                CheckoutAmountRow(
+                                    title: "Delivery Charge", amount: "0"),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                CheckoutAmountRow(
+                                    title: "Total Amount",
+                                    amount: "${provider.cartTotal}"),
+                              ],
+                            ),
+                          ),
+                          // SizedBox(
+                          //   height: 30,
+                          // ),
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          //   children: [
+                          //     RoundBordersButton(
+                          //       title: "Deliver Now",
+                          //       onPressed: () {
+                          //         setState(() {
+                          //           deliverNow = true;
+                          //           selectedTimeIndex = -1;
+                          //         });
+                          //       },
+                          //       fontSize: 16,
+                          //       verticalPadding: 14,
+                          //       selected: selectedTimeIndex == -1,
+                          //       radius: 50,
+                          //     ),
+                          //     SizedBox(
+                          //       width: 12,
+                          //     ),
+                          //     RoundBordersButton(
+                          //       title: "Deliver Later",
+                          //       onPressed: () {
+                          //         _modalBottomSheetMenu(
+                          //             context);
+                          //         // setState(() {
+                          //         //   deliverNow = false;
+                          //         // });
+                          //       },
+                          //       fontSize: 16,
+                          //       verticalPadding: 14,
+                          //       selected: selectedTimeIndex != -1,
+                          //       radius: 50,
+                          //     ),
+                          //   ],
+                          // ),
+                          SizedBox(
+                            height: 30,
+                          ),
+                          Container(
+                            padding:
+                                EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                            decoration: BoxDecoration(
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: darkGreyColor.withOpacity(0.3),
+                                      offset: Offset(0, 2),
+                                      blurRadius: 8)
+                                ],
+                                borderRadius: BorderRadius.circular(50),
+                                color: Colors.white),
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      "Add Promo Code",
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          color: blackFontColor,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                    Spacer(),
+                                    Image.asset(
+                                      "assets/icons/percentage_icon.png",
+                                      height: 25,
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Divider(
+                            color: greyDividerColor,
+                          ),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Image.asset(
+                                "assets/icons/wallet.png",
+                                height: 22,
+                                color: mainColor,
+                              ),
+                              SizedBox(
+                                width: 8,
+                              ),
+                              Text(
+                                "Cash On Delivery",
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: mainColor,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                              Spacer(),
+                              Text(
+                                "QAR ${provider.cartTotal}",
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    color: blackFontColor,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 30,
+                          ),
+                          RoundedCenterButtton(
+                            title: "Place Order",
+                            onPressed: () {
+                              if(!settingsProvider.operatingArea){
+                                showToast("Selected address is not in the operating area");
+                                return;
+                              }
+                              provider.placeOrder(context);
+                              // Navigator.pushReplacementNamed(
+                              //     context, thankyou_screen);
+                            },
+                            heightToMinus: 0,
+                          )
+                        ],
+                      ),
                     ),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Divider(
-                    color: greyDividerColor,
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Image.asset(
-                        "assets/icons/wallet.png",
-                        height: 22,
-                        color: mainColor,
-                      ),
-                      SizedBox(
-                        width: 8,
-                      ),
-                      Text(
-                        "Cash On Delivery",
-                        style: TextStyle(
-                            fontSize: 16,
-                            color: mainColor,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      Spacer(),
-                      Text(
-                        "QAR 630",
-                        style: TextStyle(
-                            fontSize: 15,
-                            color: blackFontColor,
-                            fontWeight: FontWeight.w600),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 30,
-                  ),
-                  RoundedCenterButtton(
-                    title: "Place Order",
-                    onPressed: () {
-                      Navigator.pushReplacementNamed(context, thankyou_screen);
-                    },
-                    heightToMinus: 0,
-                  )
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 35,
-            ),
-          ],
-        ),
+                    SizedBox(
+                      height: 35,
+                    ),
+                  ],
+                ),
+              );
+            });
+          });
+        }
       ),
     );
   }
 
   void _modalBottomSheetMenu(context) {
-
     showModalBottomSheet(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
@@ -428,7 +540,7 @@ class _ChecoutScreenState extends State<ChecoutScreen> {
                               fontSize: 16,
                               fontWeight: FontWeight.w500)),
                       GestureDetector(
-                        onTap: (){
+                        onTap: () {
                           Navigator.pop(context);
                         },
                         child: Image.asset(
@@ -445,7 +557,8 @@ class _ChecoutScreenState extends State<ChecoutScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 3.0),
                     child: Container(
                       width: getWidth(context),
-                      padding: EdgeInsets.symmetric(vertical: 14, horizontal: 10),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 14, horizontal: 10),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         color: Colors.white,
@@ -470,9 +583,9 @@ class _ChecoutScreenState extends State<ChecoutScreen> {
                     children: [
                       ...List.generate(
                         times.length,
-                            (index) {
+                        (index) {
                           return GestureDetector(
-                            onTap: (){
+                            onTap: () {
                               changeIndex(index);
                               Navigator.pop(context);
                             },

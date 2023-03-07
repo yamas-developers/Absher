@@ -46,6 +46,7 @@
   "auth__last_name": "الكنية",
   "auth__email_address": "عنوان البريد الالكترونى",
   "auth__confirm_password": "تأكيد كلمة المرور",
+  "auth__old_password": "كلمة المرور السابقة",
   "auth__sign_up_agree_terms": "بالتسجيل ، فإنك توافق على الشروط والأحكام.",
   "auth__already_have_account": "لديك ملف تعريف بالفعل؟",
   "auth__login_with": "تسجيل الدخول مع",

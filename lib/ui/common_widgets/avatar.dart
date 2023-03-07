@@ -42,14 +42,18 @@ class RoundedNetworkAvatar extends StatelessWidget {
   final double height;
   final double width;
   final double border;
-  final String url;
+  final String? url;
+  final String? prefix;
+  final BoxFit? fit;
+
   RoundedNetworkAvatar({
     Key? key,
     this.height = 50.0,
     this.width = 50.0,
     this.border = 2.0,
     required this.url,
-    this.color = Colors.white,
+    this.fit = BoxFit.cover,
+    this.color = Colors.white, this.prefix,
   }) : super(key: key);
 
   @override
@@ -63,12 +67,17 @@ class RoundedNetworkAvatar extends StatelessWidget {
           padding: const EdgeInsets.all(0),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(100),
-            child: Image.network(
-              url,
-              fit: BoxFit.cover,
+            child: url != null ? Image.network(
+              "${prefix!=null?"$prefix/":""}$url",
+              fit: fit,
               width: width,
               height: height,
-            ),
+            ) : Image.asset(
+            PLACEHOLDER_IAMGE_PATH,
+            height: height,
+            width: width,
+            fit: fit,
+          ),
           ),
         ));
   }

@@ -1,7 +1,10 @@
 import 'package:absher/helpers/public_methods.dart';
 import 'package:flutter/material.dart';
 
+import '../../api/mj_apis.dart';
 import '../../helpers/constants.dart';
+import '../../models/service.dart';
+import '../common_widgets/misc_widgets.dart';
 
 class ServiceProviderScreen extends StatefulWidget {
   const ServiceProviderScreen({Key? key}) : super(key: key);
@@ -11,19 +14,21 @@ class ServiceProviderScreen extends StatefulWidget {
 }
 
 class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
-  String image = "assets/images/placeholder_image.png";
-  String service = "Other Service";
+  AbsherService? service;
+
+  // String service = "Other Service";
   @override
   void didChangeDependencies() {
-    if(ModalRoute.of(context)!.settings.arguments == null) return;
+    if (ModalRoute.of(context)!.settings.arguments == null) return;
     final args = ModalRoute.of(context)!.settings.arguments as Map;
-    if(args!=null){
-      image = args["image"];
-      service = args["service"];
-      print("arguments: ${image}, ${service}");
+    if (args != null) {
+      setState(() {
+        service = args["service"];
+      });
     }
     super.didChangeDependencies();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,7 +55,7 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         GestureDetector(
-                          onTap: (){
+                          onTap: () {
                             Navigator.pop(context);
                           },
                           child: Image.asset(
@@ -72,12 +77,12 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
                       children: [
                         Flexible(
                             child: Text(
-                              "Service Provider",
-                              style: TextStyle(
-                                  fontSize: 18,
-                                  color: mainColor,
-                                  fontWeight: FontWeight.w500),
-                            )),
+                          "Service Provider",
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: mainColor,
+                              fontWeight: FontWeight.w500),
+                        )),
                       ],
                     ),
                   ),
@@ -89,17 +94,25 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
             ),
             Hero(
                 tag: ValueKey("${service}"),
-                child: Image.asset("${image}", height: 200,fit: BoxFit.fill,width: getWidth(context),)),
+                child: ImageWithPlaceholder(
+                  fit: BoxFit.fill,
+                  image: service?.image,
+                  prefix: MJ_Apis.serviceImgPath,
+                  height: 200,
+                    width: getWidth(context),
+                ),),
             SizedBox(
               height: 20,
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 18.0),
-              child: Text("${service}", style: TextStyle(
-                color: mainColor,
-                fontSize: 20,
-                fontWeight: FontWeight.w500
-              ),),
+              child: Text(
+                "${service?.name??"Name Unavailable"}",
+                style: TextStyle(
+                    color: mainColor,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500),
+              ),
             ),
             SizedBox(
               height: 20,
@@ -107,25 +120,31 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
             Container(
               padding: EdgeInsets.symmetric(horizontal: 18, vertical: 18),
               margin: EdgeInsets.symmetric(horizontal: 18),
-
               decoration: BoxDecoration(
-                color:mainColorLightest,
-                borderRadius: BorderRadius.circular(15)
-              ),
+                  color: mainColorLightest,
+                  borderRadius: BorderRadius.circular(15)),
               child: Row(
                 children: [
-                  Image.asset("assets/icons/contact_person_icon.png", height: 42,),
-                  SizedBox(width: 20,),
-                  Expanded(
-                    child: Text("Order Service",
-
-                      style: TextStyle(
-                      color: mainColor,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16
-                    ),),
+                  Image.asset(
+                    "assets/icons/contact_person_icon.png",
+                    height: 42,
                   ),
-                  Image.asset("assets/icons/whatsapp_icon.png", height: 42,)
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Expanded(
+                    child: Text(
+                      "Order Service",
+                      style: TextStyle(
+                          color: mainColor,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 16),
+                    ),
+                  ),
+                  Image.asset(
+                    "assets/icons/whatsapp_icon.png",
+                    height: 42,
+                  )
                 ],
               ),
             ),
@@ -137,23 +156,17 @@ class _ServiceProviderScreenState extends State<ServiceProviderScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Description", style: TextStyle(
-                    color: mainColor,
-                    fontSize: 16
-                  ),),
+                  Text(
+                    "Description",
+                    style: TextStyle(color: mainColor, fontSize: 16),
+                  ),
                   SizedBox(
                     height: 10,
                   ),
-                  Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do "
-                      "eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad "
-                      "minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip "
-                      "ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate "
-                      "velit esse cillum dolore eu fugiat nulla pariatur. "
-                      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed "
-                      "do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
-                      "Ut enim ad minim veniam, quis nostrud exerc", style: TextStyle(
-                    color: Colors.black
-                  ),),
+                  Text(
+                    "${service?.description??"Description Unavailable"}",
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ],
               ),
             ),

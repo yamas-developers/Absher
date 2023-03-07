@@ -11,7 +11,6 @@ import '../../config/mj_config.dart';
 import '../../helpers/constants.dart';
 import '../../helpers/public_methods.dart';
 import '../../helpers/session_helper.dart';
-import '../../models/user.dart';
 import '../../providers/user/user_provider.dart';
 import '../common_widgets/rounded_center_button.dart';
 import '../common_widgets/rounded_text_field.dart';
@@ -42,7 +41,6 @@ class _SignupScreenState extends State<SignupScreen> {
   String phoneErrorText = '';
   String passwordErrorText = '';
   String confirmPasswordErrorText = '';
-
 
   // String phonePrefixText = "+1";
   String completePhoneNumber = "";
@@ -182,26 +180,20 @@ class _SignupScreenState extends State<SignupScreen> {
       try {
         await setSession(null); //////temporary
         showProgressDialog(context, MJConfig.please_wait, isDismissable: false);
-        dynamic response = await apiService.postRequest(MJ_Apis.signup, payload);
+        dynamic response =
+            await apiService.postRequest(MJ_Apis.signup, payload);
         if (response != null) {
           await setSession(response["response"]["token"]);
           showToast(response['message']);
-          dynamic response2 =
-              await apiService.getRequest(MJ_Apis.customer_info);
-          if (response2 != null) {
-            // print("userinfo responser${response2}");
-            User user = User.fromJson(response2["response"]);
-            context.read<UserProvider>().user = user;
-            hideProgressDialog(context);
-            Navigator.pushReplacementNamed(context, home_screen);
-          } else {
-            await setSession(null);
-            hideProgressDialog(context);
-            showToast(
-                "Unable to fetch your data, please try consider trying again");
+          UserProvider userProvider = context.read<UserProvider>();
+          await userProvider.fetchUser();
+          hideProgressDialog(context);
+          if (userProvider.isLogin)
+            Navigator.pushNamedAndRemoveUntil(
+                context, home_screen, (val) => false);
+          else {
+            Navigator.pushReplacementNamed(context, login_screen);
           }
-
-          // Navigator.pushReplacementNamed(context, home_screen);
         } else {
           hideProgressDialog(context);
           showToast("Unable to fetch server response, please try later");
@@ -209,9 +201,7 @@ class _SignupScreenState extends State<SignupScreen> {
       } catch (e) {
         hideProgressDialog(context);
         log("error in signup screen: ${e}");
-      } finally {
-        // hideProgressDialog(context);
-      }
+      } finally {}
     }
   }
 

@@ -1,9 +1,13 @@
 import 'dart:io';
 
 import 'package:absher/helpers/constants.dart';
+import 'package:absher/providers/cart/cart_provider.dart';
+import 'package:absher/providers/user/user_provider.dart';
 import 'package:absher/ui/cart/cart_screen.dart';
+import 'package:absher/ui/registeration/login_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../helpers/public_methods.dart';
 import '../search_screen.dart';
@@ -40,7 +44,10 @@ class _BottomAppBarPageState extends State<BottomAppBarPage> {
     if (currentIndex == 5) return CartScreen();
     if (currentIndex == 2) return SearchScreen();
     if (currentIndex == 3) return FovoritesScreen();
-    if (currentIndex == 4) return AccountScreen();
+    if (currentIndex == 4)
+      return context.read<UserProvider>().isLogin
+          ? AccountScreen()
+          : LoginScreen();
     return HomeScreen();
   }
 
@@ -65,11 +72,36 @@ class _BottomAppBarPageState extends State<BottomAppBarPage> {
                 SizedBox(
                   height: 10,
                 ),
-                Image.asset(
-                  "assets/icons/cart.png",
-                  width: getSize(context, .09, 44, 30),
-                  height: 34,
-                  color: currentIndex == 5 ? mainColor : lightGreyColor,
+                Stack(
+                  alignment: Alignment.topRight,
+                  clipBehavior: Clip.none,
+                  children: [
+
+                    Image.asset(
+                      "assets/icons/cart.png",
+                      width: getSize(context, .09, 44, 30),
+                      height: 34,
+                      color: currentIndex == 5 ? mainColor : lightGreyColor,
+                    ),
+                    if(context.watch<CartProvider>().list.length>0)
+                    Positioned(
+                      right: -8,
+                      top: -10,
+                      child: Container(
+                          padding: EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: mainColor
+                          ),
+                          child: Text(
+                            "${context.watch<CartProvider>().list.length}",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700),
+                          )),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 4),
                 Text(
@@ -140,7 +172,7 @@ class _BottomAppBarPageState extends State<BottomAppBarPage> {
               ),
               // SizedBox(),
               GestureDetector(
-                onTap: (){
+                onTap: () {
                   setCurrentIndex(3);
                 },
                 child: BottomBarItem(
@@ -150,7 +182,7 @@ class _BottomAppBarPageState extends State<BottomAppBarPage> {
                     itemIndex: 3),
               ),
               GestureDetector(
-                onTap: (){
+                onTap: () {
                   setCurrentIndex(4);
                 },
                 child: BottomBarItem(

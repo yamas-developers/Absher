@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -6,6 +7,7 @@ import 'package:absher/helpers/constants.dart';
 import 'package:absher/helpers/route_constants.dart';
 import 'package:absher/helpers/session_helper.dart';
 import 'package:absher/providers/settings/settings_provider.dart';
+import 'package:absher/providers/user/user_provider.dart';
 import 'package:absher/ui/common_widgets/build_slide_transition.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,6 +16,7 @@ import 'package:video_player/video_player.dart';
 
 import '../../api/mj_apis.dart';
 import '../../helpers/public_methods.dart';
+import '../../models/user.dart';
 import '../../providers/location/location_provider.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
@@ -42,16 +45,14 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   getData() async {
-    // LocationProvider locProvider = context.read<LocationProvider>();
-    // SettingsProvider settingsProvider = context.read<SettingsProvider>();
-    //
-    // await locProvider.getCurrentLocation();
-    // if (locProvider.currentLocation != null) {
-    //   await settingsProvider.getSettings(locProvider.currentLocation);
-    // }
     String? token = await getSession();
-    if (token != null) {
-      Navigator.pushReplacementNamed(context, home_screen);
+    UserProvider userProvider = context.read<UserProvider>();
+    if(token != null){
+    await userProvider.fetchUser();
+    }
+
+    if (userProvider.isLogin) {
+      Navigator.pushNamedAndRemoveUntil(context, home_screen, (val)=>false);
     } else {
       Navigator.pushReplacementNamed(context, language_screen);
     }

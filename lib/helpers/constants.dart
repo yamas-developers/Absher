@@ -26,6 +26,11 @@ const BUSINESS_TYPE_STORE = "2";
 const BUSINESS_TYPE_PHARMACY = "3";
 
 const PLACEHOLDER_IAMGE_PATH = "assets/images/placeholder_image.png";
+const GOOGLE_API_KEY = "AIzaSyA7ks8X2YnLcxTuEC3qydL2adzA0NYbl6c";
+
+//AIzaSyA7ks8X2YnLcxTuEC3qydL2adzA0NYbl6c
+
+// AIzaSyCsIZjH8VgRzQkZPDtkrTxC0iWAENkDbMo
 
 dynamic langs = [
   {"locale": "en", "lang": "English"},

@@ -442,7 +442,7 @@ class _ThankyouScreenState extends State<ThankyouScreen> {
                           RoundBordersButton(
                             title: "Home",
                             onPressed: () {
-                              Navigator.pushReplacementNamed(context, home_screen);
+                              Navigator.pushNamedAndRemoveUntil(context, home_screen, (val)=>false);
                             },
                             fontSize: 16,
                             verticalPadding: 10,

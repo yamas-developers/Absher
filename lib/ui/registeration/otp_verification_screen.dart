@@ -185,7 +185,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
                 ),
                 RoundedCenterButtton(
                     onPressed: () {
-                      Navigator.pushNamed(context, home_screen);
+                      Navigator.pushNamedAndRemoveUntil(context, home_screen, (val)=>false);
 
                     },
                     title: getString("auth__sign_up")),

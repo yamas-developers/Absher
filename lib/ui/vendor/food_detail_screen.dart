@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:absher/helpers/public_methods.dart';
-import 'package:absher/models/category.dart';
 import 'package:absher/providers/business/product_detail_provider.dart';
 import 'package:absher/providers/cart/cart_provider.dart';
 import 'package:absher/ui/common_widgets/misc_widgets.dart';
@@ -16,6 +15,9 @@ import '../../helpers/constants.dart';
 import '../../models/cart.dart';
 import '../../models/category_product.dart';
 import '../../models/product.dart';
+import '../../models/user.dart';
+import '../../providers/other/favorite_provider.dart';
+import '../../providers/user/user_provider.dart';
 
 class FoodDetailScreen extends StatefulWidget {
   const FoodDetailScreen({Key? key}) : super(key: key);
@@ -26,7 +28,7 @@ class FoodDetailScreen extends StatefulWidget {
 
 class _FoodDetailScreenState extends State<FoodDetailScreen> {
   // String image = "assets/images/placeholder_image.png";
-  String type = BUSINESS_TYPE_RESTAURANT;
+  // String type = BUSINESS_TYPE_RESTAURANT;
   CategoryProduct? product;
   int quantity = 0;
   TextEditingController commentController = TextEditingController();
@@ -43,7 +45,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
         CartProvider cartProvider = context.read<CartProvider>();
         setState(() {
           product = args["product"];
-          type = args["type"];
+          // type = args["type"];
         });
         await detailProvider.getData(product?.id);
         Cart? item = cartProvider.list.firstWhereOrNull(
@@ -65,15 +67,19 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
           log("MJ: addOns in cart_screen2 ${addOns.length} in ${addOns[0].qty}");
           // detailProvider.addOns = addOns;
         }
+        detailProvider.variant = item?.variant;
         setState(() {
           cartId = item?.id;
           quantity = convertNumber(item?.qty);
           commentController.text = item?.comment ?? "";
+          if(cartId == null)quantity = 1;
         });
       });
     }
     super.didChangeDependencies();
   }
+
+  bool isFavorite = false;
 
   @override
   Widget build(BuildContext context) {
@@ -147,106 +153,185 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                         ],
                       ),
                     ),
-                    provider.loading ? LoadingIndicator() : Center(
-                      child: Wrap(children: [
-                        for (AddOns addOn in provider.addOns)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 6.0),
-                            child: Container(
-                              width: getWidth(context) / 2 - 16,
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 12),
-                              margin: EdgeInsets.symmetric(horizontal: 3),
-                              decoration: BoxDecoration(
-                                  color: mainColorLightest,
-                                  borderRadius: BorderRadius.circular(15)),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                    provider.loading
+                        ? LoadingIndicator()
+                        : Center(
+                            child: Wrap(children: [
+                              for (AddOns addOn in provider.addOns)
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 6.0),
+                                  child: Container(
+                                    width: getWidth(context) / 2 - 16,
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 12),
+                                    margin: EdgeInsets.symmetric(horizontal: 3),
+                                    decoration: BoxDecoration(
+                                        color: mainColorLightest,
+                                        borderRadius:
+                                            BorderRadius.circular(15)),
+                                    child: Row(
                                       children: [
-                                        Text(
-                                          "${addOn.price} QAR",
-                                          style: TextStyle(
-                                              color: mainColor,
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 15),
-                                        ),
-                                        Text(
-                                          "${addOn.name}",
-                                          style: TextStyle(
-                                              color: mainColor,
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 12),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: addOn.available
-                                        ? Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              InkWell(
-                                                onTap: addOn.available
-                                                    ? () {
-                                                  // addOn.available = false;
-                                                  // return;
-                                                  if (addOn.qty == 0)
-                                                    return;
-                                                  setState(() {
-                                                    addOn.qty--;
-                                                  });
-                                                }
-                                                    : null,
-                                                child: Image.asset(
-                                                  "assets/icons/minus_filled.png",
-                                                  height: 22,
-                                                ),
-                                              ),
-
-                                              SizedBox(
-                                                width: 5,
+                                              Text(
+                                                "${addOn.price} QAR",
+                                                style: TextStyle(
+                                                    color: mainColor,
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 15),
                                               ),
                                               Text(
-                                                "${addOn.qty}",
+                                                "${addOn.name}",
                                                 style: TextStyle(
                                                     color: mainColor,
                                                     fontWeight: FontWeight.w500,
-                                                    fontSize: 13),
-                                              ),
-                                              SizedBox(
-                                                width: 5,
-                                              ),
-                                              InkWell(
-                                                onTap: addOn.available
-                                                    ? () {
-                                                  setState(() {
-                                                    addOn.qty++;
-                                                  });
-                                                }
-                                                    : null,
-                                                child: Image.asset(
-                                                  "assets/icons/plus_filled.png",
-                                                  height: 22,
-                                                ),
+                                                    fontSize: 12),
                                               ),
                                             ],
-                                          )
-                                        : Text(
-                                            "Unavailable",
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                color: mainColorLight),
                                           ),
-                                  )
-                                ],
+                                        ),
+                                        Expanded(
+                                          child: addOn.available
+                                              ? Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
+                                                  children: [
+                                                    InkWell(
+                                                      onTap: addOn.available
+                                                          ? () {
+                                                              // addOn.available = false;
+                                                              // return;
+                                                              if (addOn.qty ==
+                                                                  0) return;
+                                                              setState(() {
+                                                                addOn.qty--;
+                                                              });
+                                                            }
+                                                          : null,
+                                                      child: Image.asset(
+                                                        "assets/icons/minus_filled.png",
+                                                        height: 22,
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 5,
+                                                    ),
+                                                    Text(
+                                                      "${addOn.qty}",
+                                                      style: TextStyle(
+                                                          color: mainColor,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          fontSize: 13),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 5,
+                                                    ),
+                                                    InkWell(
+                                                      onTap: addOn.available
+                                                          ? () {
+                                                              setState(() {
+                                                                addOn.qty++;
+                                                              });
+                                                            }
+                                                          : null,
+                                                      child: Image.asset(
+                                                        "assets/icons/plus_filled.png",
+                                                        height: 22,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )
+                                              : Text(
+                                                  "Unavailable",
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: mainColorLight),
+                                                ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                            ]),
+                          ),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: Text(
+                        "Variants",
+                        style: TextStyle(
+                            color: blackFontColor,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Wrap(children: [
+                        // for (Variations variant in )
+                        ...List.generate(
+                            provider.product?.variations?.length ?? 0, (index) {
+                          Variations? variant =
+                              provider.product?.variations![index];
+                          bool isSelected = provider.isVariantSame(variant);
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 6.0, horizontal: 4),
+                            child: GestureDetector(
+                              onTap: () {
+                                provider.variant = variant;
+                              },
+                              child: Container(
+                                width: getWidth(context) / 3 - 24,
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 12),
+                                margin: EdgeInsets.symmetric(horizontal: 3),
+                                decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? mainColorLight
+                                        : mainColorLightest,
+                                    borderRadius: BorderRadius.circular(15)),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "${variant?.price} QAR",
+                                            style: TextStyle(
+                                                color: isSelected
+                                                    ? Colors.white
+                                                    : mainColor,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 15),
+                                          ),
+                                          Text(
+                                            "${variant?.type}",
+                                            style: TextStyle(
+                                                color: isSelected
+                                                    ? Colors.white
+                                                    : mainColor,
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 12),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
+                          );
+                        }),
                       ]),
                     ),
                     SizedBox(
@@ -375,53 +460,86 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 18.0),
                       child: RoundedCenterButtton(
                           onPressed: () async {
-                            if (quantity <= 0 && cartId == null) {
-                              showToast("Please select quantity");
-                              return;
-                            }
-                            int total = 0;
-                            int addOns = 0;
-                            List<AddOns> list = [];
-                            for (int i = 0; i < (provider.addOns.length); i++) {
-                              if (convertNumber(provider.addOns[i].qty) > 0) {
-                                list.add(provider.addOns[i]);
-                                addOns +=
-                                    convertNumber(provider.addOns[i].price) *
-                                        convertNumber(provider.addOns[i].qty);
+                            add() async {
+                              if (quantity <= 0 && cartId == null) {
+                                showToast("Please select quantity");
+                                return;
                               }
-                            }
-                            total += (convertNumber(provider.product?.price) +
-                                    addOns) *
-                                quantity;
+                              if (provider.variant == null && cartId == null) {
+                                showToast("Please select variant");
+                                return;
+                              }
+                              int total = 0;
+                              int addOns = 0;
+                              List<AddOns> list = [];
+                              for (int i = 0;
+                                  i < (provider.addOns.length);
+                                  i++) {
+                                if (convertNumber(provider.addOns[i].qty) > 0) {
+                                  list.add(provider.addOns[i]);
+                                  addOns +=
+                                      convertNumber(provider.addOns[i].price) *
+                                          convertNumber(provider.addOns[i].qty);
+                                }
+                              }
+                              total += (convertNumber(provider.variant?.price) +
+                                      addOns) *
+                                  quantity;
 
-                            // provider.addOns
+                              // provider.addOns
 
-                            Cart item = Cart(
-                              title: provider.product?.name,
-                              storeProductId: provider.product?.id,
-                              image: provider.product?.image,
-                              price: provider.product?.price.toString(),
-                              totalPrice: total.toString(),
-                              addOns: list,
-                              comment: commentController.text,
-                              qty: quantity.toString(),
-                              storeId: provider.product?.restaurantId,
-                            );
+                              Cart item = Cart(
+                                  title: provider.product?.name,
+                                  storeProductId: provider.product?.id,
+                                  image: provider.product?.image,
+                                  price: provider.variant?.price.toString(),
+                                  totalPrice: total.toString(),
+                                  addOns: list,
+                                  comment: commentController.text,
+                                  qty: quantity.toString(),
+                                  storeId: provider.product?.restaurantId,
+                                  variant: provider.variant);
 
-                            if (quantity > 0) {
-                              await context
-                                  .read<CartProvider>()
-                                  .addToCart(cartItem: item);
-                              showToast("Added to cart");
-                            } else {
-                              if (cartId != null) {
+                              if (quantity > 0) {
                                 await context
                                     .read<CartProvider>()
-                                    .removeFromCart(cartId);
-                                showToast("Cart updated");
+                                    .addToCart(cartItem: item);
+                                showToast("Added to cart");
+                              } else {
+                                if (cartId != null) {
+                                  await context
+                                      .read<CartProvider>()
+                                      .removeFromCart(cartId);
+                                  showToast("Cart updated");
+                                }
+                              }
+                              Navigator.pop(context);
+                            }
+
+                            dynamic addToCart() {
+                              if (cartProvider.currentStoreId.toString() ==
+                                      provider.product?.restaurantId
+                                          .toString() ||
+                                  cartProvider.currentStoreId.toString() ==
+                                      "0") {
+                                add();
+                              } else {
+                                showAlertDialog(
+                                  context,
+                                  "Current items will be deleted",
+                                  "Your current cart items will be lost if you will add items from this store",
+                                  okButtonText: "Sure",
+                                  dismissible: true,
+                                  type: AlertType.WARNING,
+                                  onPress: () {
+                                    Navigator.pop(context);
+                                    add();
+                                  },
+                                );
                               }
                             }
-                            Navigator.pop(context);
+
+                            addToCart();
                           },
                           title:
                               "${cartId != null ? "Update Cart" : "Add to Cart"}",
@@ -459,34 +577,61 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                           children: [
                             GestureDetector(
                               onTap: () {
-                                Navigator.pop(context);
+                                User? user =
+                                    context.read<UserProvider>().currentUser;
+                                if (user != null) {
+                                  context
+                                      .read<FavoriteProvider>()
+                                      .addFavoriteProduct(
+                                          user.id, provider.product?.id);
+                                  setState(() {
+                                    isFavorite = true;
+                                  });
+                                }
                               },
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 18.0),
                                 child: Image.asset(
-                                  "assets/icons/bookmark.png",
-                                  width: 20,
-                                  // height: 20,
+                                  !isFavorite
+                                      ? "assets/icons/favorite.png"
+                                      : "assets/icons/favorite_filled.png",
+                                  width: 30,
+                                  height: 30,
                                   color: Colors.white,
                                 ),
                               ),
                             ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 18.0),
-                                child: Image.asset(
-                                  "assets/icons/exit_icon.png",
-                                  width: 24,
-                                  height: 24,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
+                            // GestureDetector(
+                            //   onTap: () {
+                            //     Navigator.pop(context);
+                            //   },
+                            //   child: Padding(
+                            //     padding: const EdgeInsets.symmetric(
+                            //         horizontal: 18.0),
+                            //     child: Image.asset(
+                            //       "assets/icons/bookmark.png",
+                            //       width: 20,
+                            //       // height: 20,
+                            //       color: Colors.white,
+                            //     ),
+                            //   ),
+                            // ),
+                            // GestureDetector(
+                            //   onTap: () {
+                            //     Navigator.pop(context);
+                            //   },
+                            //   child: Padding(
+                            //     padding: const EdgeInsets.symmetric(
+                            //         horizontal: 18.0),
+                            //     child: Image.asset(
+                            //       "assets/icons/exit_icon.png",
+                            //       width: 24,
+                            //       height: 24,
+                            //       color: Colors.white,
+                            //     ),
+                            //   ),
+                            // ),
                           ],
                         )
                       ],

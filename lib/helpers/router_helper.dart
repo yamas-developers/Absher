@@ -24,6 +24,7 @@ import '../ui/loyalty/points_balance_screen.dart';
 import '../ui/notification/notifications_screen.dart';
 import '../ui/orders/order_detail_screen.dart';
 import '../ui/orders/order_screen.dart';
+import '../ui/profile/edit_profile.dart';
 import '../ui/registeration/login_screen.dart';
 import '../ui/registeration/terms_and_condition_screen.dart';
 import '../ui/vendor/filter_screen.dart';
@@ -55,6 +56,11 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       print(settings.name);
       return routeOne(
           settings: settings, widget: SignupScreen(), routeName: signup_screen);
+
+      case edit_profile_screen:
+      print(settings.name);
+      return routeOne(
+          settings: settings, widget: EditProfile(), routeName: edit_profile_screen);
 
     case terms_and_condition_screen:
       print(settings.name);

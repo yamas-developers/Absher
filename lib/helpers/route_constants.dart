@@ -3,6 +3,7 @@ const String home_screen = "home_screen";
 const String language_screen = "language_screen";
 const String login_screen = "login_screen";
 const String signup_screen = "signup_screen";
+const String edit_profile_screen = "edit_profile_screen";
 const String terms_and_condition_screen = "terms_and_condition_screen";
 const String otp_screen = "otp_screen";
 const String map_view = "map_view";
