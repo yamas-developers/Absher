@@ -1,6 +1,7 @@
 import 'package:absher/helpers/constants.dart';
 import 'package:absher/providers/location/location_provider.dart';
 import 'package:absher/providers/mj_providers.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'helpers/router_helper.dart' as router;
@@ -9,6 +10,7 @@ import 'package:easy_localization/easy_localization.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
+  await Firebase.initializeApp();
 
   runApp(
     EasyLocalization(

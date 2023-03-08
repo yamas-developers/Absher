@@ -283,7 +283,34 @@ double convertDouble(num) {
     return 0;
   }
 }
+String convertTimestampToAgo(int timestamp) {
+  var now = new DateTime.now();
+  var format = new DateFormat('h:mm a');
+  var date = new DateTime.fromMicrosecondsSinceEpoch(timestamp);
+  var diff = date.difference(now);
+  var time = '';
 
+  if (diff.inSeconds <= 0 ||
+      diff.inSeconds > 0 && diff.inMinutes == 0 ||
+      diff.inMinutes > 0 && diff.inHours == 0 ||
+      diff.inHours > 0 && diff.inDays == 0) {
+    time = format.format(date);
+  } else {
+    if (diff.inDays == 1) {
+      time = diff.inDays.toString() + 'DAY AGO';
+    } else {
+      time = diff.inDays.toString() + 'DAYS AGO';
+    }
+  }
+
+  return time;
+}
+String capitalizeFirstLetter(String inputString) {
+  if (inputString == null || inputString.isEmpty) {
+    return '';
+  }
+  return inputString[0].toUpperCase() + inputString.substring(1);
+}
 int convertNumber(num) {
   try {
     // print(num);

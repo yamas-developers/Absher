@@ -68,6 +68,7 @@
   "profile__terms_n_condtition": "Terms & Condition",
   "profile__logout": "Log Out",
   "order__delivered_at": "Delivered at",
+  "order__created_at": "Created at",
   "order__re_order": "Re-Order",
   "order__current_orders": "Current Orders",
   "order__past_orders": "Past Orders",

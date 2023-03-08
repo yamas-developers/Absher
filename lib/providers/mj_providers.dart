@@ -2,6 +2,7 @@
 import 'package:absher/providers/business/business_detail_provider.dart';
 import 'package:absher/providers/business/takeaway_pharma_provider.dart';
 import 'package:absher/providers/cart/cart_provider.dart';
+import 'package:absher/providers/order/order_detail_provider.dart';
 import 'package:absher/providers/settings/settings_provider.dart';
 import 'package:absher/providers/user/user_provider.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +18,7 @@ import 'business/service_provider.dart';
 import 'business/store_detail_provider.dart';
 import 'business/takeaway_restaurant_provider.dart';
 import 'location/location_provider.dart';
+import 'order/pending_orders_provider.dart';
 import 'other/favorite_provider.dart';
 import 'other/search_business_provider.dart';
 
@@ -63,4 +65,8 @@ List<SingleChildWidget> independentProviders = [
 
   ChangeNotifierProvider<ExpressProvider>(
       create: (_) => ExpressProvider(),),
+  ChangeNotifierProvider<PendingOrdersProvider>(
+      create: (_) => PendingOrdersProvider(),),
+  ChangeNotifierProvider<OrderDetailProvider>(
+      create: (_) => OrderDetailProvider(),),
 ];

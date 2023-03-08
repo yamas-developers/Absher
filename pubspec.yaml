@@ -56,6 +56,9 @@ dependencies:
   uuid: ^3.0.6
   place_picker: ^0.10.0
   shared_preferences: ^2.0.18
+  firebase_database: any
+  firebase_core: ^2.7.1
+  cloud_firestore: ^4.4.4
 
 dev_dependencies:
   flutter_test:

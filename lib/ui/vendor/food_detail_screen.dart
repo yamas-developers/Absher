@@ -12,10 +12,12 @@ import 'package:provider/provider.dart';
 
 import '../../api/mj_apis.dart';
 import '../../helpers/constants.dart';
+import '../../models/addons.dart';
 import '../../models/cart.dart';
 import '../../models/category_product.dart';
 import '../../models/product.dart';
 import '../../models/user.dart';
+import '../../models/variations.dart';
 import '../../providers/other/favorite_provider.dart';
 import '../../providers/user/user_provider.dart';
 

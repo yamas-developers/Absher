@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import '../search_screen.dart';
 import '../ui/bottom_bar_page.dart';
 import '../ui/cart/checkout_screen.dart';
+import '../ui/chat/chat_screen.dart';
 import '../ui/express_delivery/express_delivery_screen.dart';
 import '../ui/favorites/favorites_screen.dart';
 import '../ui/grocery/category_detail_screen.dart';
@@ -160,6 +161,12 @@ Route<dynamic> generateRoute(RouteSettings settings) {
           settings: settings,
           widget: OrderScreen(),
           routeName: order_screen);
+    case chat_screen:
+      print(settings.name);
+      return routeOne(
+          settings: settings,
+          widget: ChatScreen(),
+          routeName: chat_screen);
     case thankyou_screen:
       print(settings.name);
       return routeOne(

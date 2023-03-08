@@ -73,6 +73,7 @@
   "profile__terms_n_condtition": "أحكام وشروط",
   "profile__logout": "تسجيل خروج",
   "order__delivered_at": "سلمت في",
+  "order__created_at": "أنشئت في",
   "order__re_order": "إعادة الطلب",
   "order__current_orders": "الطلبات الحالية",
   "order__past_orders": "الطلبات السابقة",

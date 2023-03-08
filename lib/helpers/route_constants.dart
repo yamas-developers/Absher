@@ -20,6 +20,7 @@ const String service_provider_screen = "service_provider_screen";
 const String  points_balance_screen= "points_balance_screen";
 const String  notifications_screen= "notifications_screen";
 const String  order_screen= "order_screen";
+const String  chat_screen= "chat_screen";
 const String  order_detail_screen= "order_detail_screen";
 const String  filter_screen= "filter_screen";
 const String  vendor_info_screen= "vendor_info_screen";

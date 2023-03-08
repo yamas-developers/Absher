@@ -1,14 +1,21 @@
-import 'dart:math';
+import 'dart:developer' as dev;
 
 import 'package:absher/helpers/route_constants.dart';
 import 'package:absher/ui/common_widgets/avatar.dart';
 import 'package:absher/ui/common_widgets/build_slide_transition.dart';
 import 'package:absher/ui/common_widgets/touchable_opacity.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
+import '../../helpers/app_loader.dart';
 import '../../helpers/constants.dart';
 import '../../helpers/public_methods.dart';
+import '../../models/order.dart';
+import '../../providers/order/order_detail_provider.dart';
+import '../../providers/order/pending_orders_provider.dart';
 import '../common_widgets/language_aware_widgets.dart';
+import '../common_widgets/misc_widgets.dart';
 
 class OrderScreen extends StatefulWidget {
   const OrderScreen({Key? key}) : super(key: key);
@@ -208,6 +215,13 @@ class _OrderScreenState extends State<OrderScreen>
               Expanded(
                 // height: getHeight(context),
                 child: TabBarView(controller: tabController, children: [
+                  Consumer<PendingOrdersProvider>(
+                      builder: (context, pendingOrderProvider, _) {
+                    return OrdersArea(
+                      orderProvider: pendingOrderProvider,
+                      isPending: true,
+                    );
+                  }),
                   Padding(
                     padding:
                         const EdgeInsets.only(left: 12, top: 18, right: 12),
@@ -216,23 +230,9 @@ class _OrderScreenState extends State<OrderScreen>
                         ...List.generate(5, (index) {
                           if (index == 0) animationDuration = 0;
                           return BuildSlideTransition(
-                            child: OrderItem(),
-                            animationDuration: animationDuration += 300,
-                            curve: Curves.easeInBack,
-                          );
-                        })
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding:
-                        const EdgeInsets.only(left: 12, top: 18, right: 12),
-                    child: ListView(
-                      children: [
-                        ...List.generate(5, (index) {
-                          if (index == 0) animationDuration = 0;
-                          return BuildSlideTransition(
-                            child: OrderItem(),
+                            child: OrderItem(
+                              orderData: Order(),
+                            ),
                             animationDuration: animationDuration += 300,
                             curve: Curves.easeInBack,
                             startPos: -1.0,
@@ -254,19 +254,51 @@ class _OrderScreenState extends State<OrderScreen>
   }
 }
 
-class OrderItem extends StatelessWidget {
-  const OrderItem({
+class OrderArea extends StatelessWidget {
+  const OrderArea({
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 12, top: 18, right: 12),
+      child: ListView(
+        children: [
+          ...List.generate(1, (index) {
+            // if (index == 0) animationDuration = 0;
+            return OrderItem(
+              orderData: Order(),
+            );
+          })
+        ],
+      ),
+    );
+  }
+}
+
+class OrderItem extends StatelessWidget {
+  const OrderItem({
+    Key? key,
+    required this.orderData,
+    this.isPending = false,
+  }) : super(key: key);
+
+  final Order orderData;
+  final bool isPending;
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        OrderDetailProvider detailProvider = context.read<OrderDetailProvider>();
+        detailProvider.orderId = orderData.id;
+        detailProvider.orderItem = orderData;
+        detailProvider.getData();
         Navigator.pushNamed(context, order_detail_screen);
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6.0),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
         child: Stack(
           children: [
             Container(
@@ -292,11 +324,18 @@ class OrderItem extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // SizedBox(width: 6,),
-                            Text(
-                              "${getString('order__delivered_at')} 10:38pm, 20.02.2022",
-                              style:
-                                  TextStyle(fontSize: 12, color: darkGreyColor),
-                            ),
+                            if (isPending)
+                              Text(
+                                "${getString('order__created_at')} ${orderData.createdAt??"N/A"}",
+                                style: TextStyle(
+                                    fontSize: 12, color: darkGreyColor),
+                              )
+                            else
+                              Text(
+                                "${getString('order__delivered_at')} 10:38pm, 20.02.2022",
+                                style: TextStyle(
+                                    fontSize: 12, color: darkGreyColor),
+                              ),
                           ],
                         ),
                       ],
@@ -330,14 +369,14 @@ class OrderItem extends StatelessWidget {
                               children: [
                                 // SizedBox(height: 12,),
                                 Text(
-                                  "Restaurant Name",
+                                  "${orderData.restaurant?.name}",
                                   style: TextStyle(
                                       fontWeight: FontWeight.w600,
                                       fontSize: 16,
                                       color: Colors.black),
                                 ),
                                 Text(
-                                  "${getString('common__qar')} 635",
+                                  "${getString('common__qar')} ${orderData.orderAmount}",
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
@@ -361,7 +400,7 @@ class OrderItem extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "${getString('common__order')} #23645955",
+                          "${getString('common__order')} #${orderData.id}",
                           style: TextStyle(fontSize: 13, color: darkGreyColor),
                         ),
                         ReflectByLanguage(
@@ -376,48 +415,52 @@ class OrderItem extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Container(
-                    // padding: EdgeInsets.symmetric(vertical: 12),
-                    decoration: BoxDecoration(
-                        border: Border(top: BorderSide(color: darkGreyColor))),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TouchableOpacity(
-                            onTap: (){},
-                            child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                              decoration: BoxDecoration(
-                                  border: Border(
-                                      right: BorderSide(color: darkGreyColor))),
-                              child: Text(
-                                getString("order__re_order"),
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: mainColor,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500),
+                  // if(isPending)
+                  Opacity(
+                    opacity: isPending? 0.3: 1,
+                    child: Container(
+                      // padding: EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                          border: Border(top: BorderSide(color: darkGreyColor))),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TouchableOpacity(
+                              onTap: () {},
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 10),
+                                decoration: BoxDecoration(
+                                    border: Border(
+                                        right: BorderSide(color: darkGreyColor))),
+                                child: Text(
+                                  getString("order__re_order"),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: mainColor,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        Expanded(
-                          child: TouchableOpacity(
-                            onTap: (){},
-                            child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                              child: Text(
-                                getString("order__rate_order"),
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: mainColor,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500),
+                          Expanded(
+                            child: TouchableOpacity(
+                              onTap: () {},
+                              child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 10),
+                                child: Text(
+                                  getString("order__rate_order"),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: mainColor,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500),
+                                ),
                               ),
                             ),
-                          ),
-                        )
-                      ],
+                          )
+                        ],
+                      ),
                     ),
                   )
                 ],
@@ -440,6 +483,106 @@ class OrderItem extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class OrdersArea extends StatefulWidget {
+  const OrdersArea({
+    Key? key,
+    required this.orderProvider,
+    this.isPending = false,
+  }) : super(key: key);
+  final dynamic orderProvider;
+  final bool isPending;
+
+  @override
+  State<OrdersArea> createState() => _OrdersAreaState();
+}
+
+class _OrdersAreaState extends State<OrdersArea> {
+  bool initialized = false;
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      try {
+        await widget.orderProvider.getData();
+        initialized = true;
+      } catch (e) {
+        dev.log("error in initstate: $e");
+      }
+    });
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    RefreshController controller = widget.orderProvider.refreshController;
+    return SizedBox(
+      height: getHeight(context),
+      child: SmartRefresher(
+        controller: controller,
+        // controller: widget.resProvider.refreshController,
+        enablePullDown: true,
+        enablePullUp: true,
+        header: BezierHeader(
+          child: Center(
+              child: Column(
+            children: [
+              AppLoader(
+                size: 40.0,
+                strock: 1,
+              ),
+            ],
+          )),
+          bezierColor: mainColor,
+        ),
+        footer: CustomFooter(
+          height: 70,
+          builder: smartRefreshFooter,
+        ),
+        onLoading: () async {
+          if (!controller.isRefresh && initialized == true)
+            await widget.orderProvider.getData();
+        },
+        onRefresh: () async {
+          await widget.orderProvider.reset();
+        },
+        child: widget.orderProvider.loading && widget.orderProvider.list.isEmpty
+            ? LoadingIndicator()
+            : widget.orderProvider.list.isEmpty
+                ? EmptyWidget()
+                : ListView(
+                    children: [
+                      ...List.generate(widget.orderProvider.list.length,
+                          (index) {
+                        Order order = widget.orderProvider.list[index];
+                        return SizedBox(
+                          child: OrderItem(
+                              orderData: order, isPending: widget.isPending
+                              // onPress: () {
+                              //   if (widget.storeType == BUSINESS_TYPE_STORE)
+                              //     Navigator.pushNamed(context, grocery_store_screen,
+                              //         arguments: {
+                              //           "store": widget.orderProvider.list[index],
+                              //         });
+                              //   else
+                              //     Navigator.pushNamed(
+                              //         context, restaurant_detail_screen,
+                              //         arguments: {
+                              //           "store": widget.orderProvider.list[index],
+                              //         });
+                              // },
+                              // resData: order,
+                              // centerImageheight: 140,
+                              // maxWidth: 320,
+                              ),
+                        );
+                      })
+                    ],
+                  ),
       ),
     );
   }
