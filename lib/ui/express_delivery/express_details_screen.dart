@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../helpers/constants.dart';
 import '../../providers/business/express_provider.dart';
+import '../../providers/settings/settings_provider.dart';
 import '../common_widgets/language_aware_widgets.dart';
 import '../common_widgets/rounded_center_button.dart';
 import '../common_widgets/rounded_text_field_filled.dart';
@@ -106,250 +107,254 @@ class _ExpressDetailsScreenState extends State<ExpressDetailsScreen> {
         toolbarHeight: 0,
         backgroundColor: mainColor,
       ),
-      body: Consumer<ExpressProvider>(builder: (context, provider, _) {
-        return SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 6,
-                ),
-                Container(
-                  padding: EdgeInsets.fromLTRB(0, 15, 18, 0),
-                  child: Flex(
-                    direction: Axis.horizontal,
-                    children: [
-                      Expanded(
-                        flex: 1,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+      body: Consumer<SettingsProvider>(
+        builder: (context, settingsProvider, _) {
+      return  Consumer<ExpressProvider>(builder: (context, provider, _) {
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 6,
+                    ),
+                    Container(
+                      padding: EdgeInsets.fromLTRB(0, 15, 18, 0),
+                      child: Flex(
+                        direction: Axis.horizontal,
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: ReflectByLanguage(
+                                    child: Image.asset(
+                                      "assets/icons/back_arrow_icon.png",
+                                      width: 24,
+                                      height: 24,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 8,
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            flex: 8,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Flexible(
+                                    child: Text(
+                                  getString("express__enter_details"),
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: mainColor,
+                                      fontWeight: FontWeight.w500),
+                                )),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    ExpressDetailItem(
+                      address: provider.pickupAddress?.address ?? '',
+                      title: getString("express__pick_up"),
+                      nameCtrl: pickupNameController,
+                      addressCtrl: pickupAddressController,
+                      phoneCtrl: pickupPhoneController,
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    ExpressDetailItem(
+                      address: provider.destinationAddress?.address ?? '',
+                      title: getString("express__delivery"),
+                      nameCtrl: dropoffNameController,
+                      addressCtrl: dropoffAddressController,
+                      phoneCtrl: dropoffPhoneController,
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Text(
+                      getString('express__describe_item'),
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    RoundedTextFieldFilled(
+                      label: getString("express__tell_more"),
+                      maxLines: 2,
+                      controller: descriptionController,
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    if ((provider.expressCategories?.length ?? 0) > 0)
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 0),
+                        height: 50,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
                           children: [
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: ReflectByLanguage(
-                                child: Image.asset(
-                                  "assets/icons/back_arrow_icon.png",
-                                  width: 24,
-                                  height: 24,
+                            ...List.generate(
+                              provider.expressCategories?.length ?? 0,
+                              (i) => GestureDetector(
+                                onTap: () {
+                                  provider.catId =
+                                      provider.expressCategories![i].id;
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 4, vertical: 8),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        color: provider.expressCategories![i].id ==
+                                                provider.catId
+                                            ? mainColor
+                                            : mainColorLight.withOpacity(0.15),
+                                        borderRadius: BorderRadius.circular(6)),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8),
+                                      child: Center(
+                                          child: Text(
+                                        "${provider.expressCategories![i].name}",
+                                        style: TextStyle(
+                                            color:
+                                                provider.expressCategories![i].id ==
+                                                        provider.catId
+                                                    ? Colors.white
+                                                    : darkGreyColor),
+                                      )),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                            SizedBox(
-                              width: 8,
-                            ),
+                            ).toList(),
                           ],
                         ),
                       ),
-                      Expanded(
-                        flex: 8,
-                        child: Row(
+                    // Spacer(),
+                    Divider(),
+                    Column(
+                      children: [
+                        Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Flexible(
-                                child: Text(
-                              getString("express__enter_details"),
+                            Text(
+                              "${settingsProvider.zone?.zoneData?.first.currency_symbol}",
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  color: mainColor,
+                                  fontWeight: FontWeight.w400),
+                            ),
+                            SizedBox(
+                              width: 4,
+                            ),
+                            Text(
+                              "30",
                               style: TextStyle(
                                   fontSize: 18,
                                   color: mainColor,
-                                  fontWeight: FontWeight.w500),
-                            )),
+                                  fontWeight: FontWeight.w600),
+                            ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 15,
-                ),
-                ExpressDetailItem(
-                  address: provider.pickupAddress?.address ?? '',
-                  title: getString("express__pick_up"),
-                  nameCtrl: pickupNameController,
-                  addressCtrl: pickupAddressController,
-                  phoneCtrl: pickupPhoneController,
-                ),
-                SizedBox(
-                  height: 15,
-                ),
-                ExpressDetailItem(
-                  address: provider.destinationAddress?.address ?? '',
-                  title: getString("express__delivery"),
-                  nameCtrl: dropoffNameController,
-                  addressCtrl: dropoffAddressController,
-                  phoneCtrl: dropoffPhoneController,
-                ),
-                SizedBox(
-                  height: 15,
-                ),
-                Text(
-                  getString('express__describe_item'),
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                RoundedTextFieldFilled(
-                  label: getString("express__tell_more"),
-                  maxLines: 2,
-                  controller: descriptionController,
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                if ((provider.expressCategories?.length ?? 0) > 0)
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 0),
-                    height: 50,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        ...List.generate(
-                          provider.expressCategories?.length ?? 0,
-                          (i) => GestureDetector(
-                            onTap: () {
-                              provider.catId =
-                                  provider.expressCategories![i].id;
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 4, vertical: 8),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    color: provider.expressCategories![i].id ==
-                                            provider.catId
-                                        ? mainColor
-                                        : mainColorLight.withOpacity(0.15),
-                                    borderRadius: BorderRadius.circular(6)),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8),
-                                  child: Center(
-                                      child: Text(
-                                    "${provider.expressCategories![i].name}",
-                                    style: TextStyle(
-                                        color:
-                                            provider.expressCategories![i].id ==
-                                                    provider.catId
-                                                ? Colors.white
-                                                : darkGreyColor),
-                                  )),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ).toList(),
-                      ],
-                    ),
-                  ),
-                // Spacer(),
-                Divider(),
-                Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          getString("common__qar"),
-                          style: TextStyle(
-                              fontSize: 15,
-                              color: mainColor,
-                              fontWeight: FontWeight.w400),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        // Text(
+                        //   "${getString(
+                        //       'express__pick_up_at')} 2:30 pm | ${getString(
+                        //       'express__delivery_at')} 9:30 pm",
+                        //   style: TextStyle(
+                        //       fontSize: 13,
+                        //       color: mediumGreyColor,
+                        //       fontWeight: FontWeight.w400),
+                        // ),
+                        // SizedBox(
+                        //   height: 8,
+                        // ),
+                        RoundedCenterButtton(
+                          title: getString("Place Order"),
+                          onPressed: () {
+                            placeOrder();
+                          },
                         ),
                         SizedBox(
-                          width: 4,
+                          height: 8,
                         ),
-                        Text(
-                          "30",
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: mainColor,
-                              fontWeight: FontWeight.w600),
-                        ),
+                        RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                              text: getString(
+                                  'express__clicking_checkout_agree_terms'),
+                              style: TextStyle(
+                                color: mediumGreyColor,
+                                fontSize: 12,
+                                // fontWeight: FontWeight.bold
+                              ),
+                              children: <TextSpan>[
+                                TextSpan(
+                                    text: getString('express__prohibited_items'),
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        decoration: TextDecoration.underline),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () {
+                                        // open desired screen
+                                      }),
+                                TextSpan(
+                                    text: ' ${getString('common__and')} ',
+                                    style: TextStyle(
+                                      color: mediumGreyColor,
+                                      fontSize: 12,
+                                      // fontWeight: FontWeight.bold
+                                    )),
+                                TextSpan(
+                                    text: getString('express__terms_n_cond_,'),
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        decoration: TextDecoration.underline),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () {
+                                        // open desired screen
+                                      }),
+                              ]),
+                        )
                       ],
                     ),
                     SizedBox(
-                      height: 8,
+                      height: 35,
                     ),
-                    // Text(
-                    //   "${getString(
-                    //       'express__pick_up_at')} 2:30 pm | ${getString(
-                    //       'express__delivery_at')} 9:30 pm",
-                    //   style: TextStyle(
-                    //       fontSize: 13,
-                    //       color: mediumGreyColor,
-                    //       fontWeight: FontWeight.w400),
-                    // ),
-                    // SizedBox(
-                    //   height: 8,
-                    // ),
-                    RoundedCenterButtton(
-                      title: getString("Place Order"),
-                      onPressed: () {
-                        placeOrder();
-                      },
-                    ),
-                    SizedBox(
-                      height: 8,
-                    ),
-                    RichText(
-                      textAlign: TextAlign.center,
-                      text: TextSpan(
-                          text: getString(
-                              'express__clicking_checkout_agree_terms'),
-                          style: TextStyle(
-                            color: mediumGreyColor,
-                            fontSize: 12,
-                            // fontWeight: FontWeight.bold
-                          ),
-                          children: <TextSpan>[
-                            TextSpan(
-                                text: getString('express__prohibited_items'),
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    decoration: TextDecoration.underline),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    // open desired screen
-                                  }),
-                            TextSpan(
-                                text: ' ${getString('common__and')} ',
-                                style: TextStyle(
-                                  color: mediumGreyColor,
-                                  fontSize: 12,
-                                  // fontWeight: FontWeight.bold
-                                )),
-                            TextSpan(
-                                text: getString('express__terms_n_cond_,'),
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    decoration: TextDecoration.underline),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    // open desired screen
-                                  }),
-                          ]),
-                    )
                   ],
                 ),
-                SizedBox(
-                  height: 35,
-                ),
-              ],
-            ),
-          ),
-        );
-      }),
+              ),
+            );
+          });
+        }
+      ),
     );
   }
 }

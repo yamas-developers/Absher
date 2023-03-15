@@ -196,7 +196,7 @@ class _SignupScreenState extends State<SignupScreen> {
           }
         } else {
           hideProgressDialog(context);
-          showToast("Unable to fetch server response, please try later");
+          // showToast("Unable to fetch server response, please try later");
         }
       } catch (e) {
         hideProgressDialog(context);

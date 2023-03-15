@@ -79,12 +79,12 @@ class _LocationBottomViewState extends State<LocationBottomView> {
                 title: Text(provider.addressDetails[index]["address"]?? "No Location Available", maxLines: 2,style: TextStyle(fontSize: 13, color: selected ? mainColor: null),),
                 subtitle: Text(provider.addressDetails[index]["address"]?? "City: N/A", style: TextStyle(color: selected ? mainColor: null),),
                 onTap: () async {
+                  Navigator.pop(context);
                   provider.setCurrentAddress(provider.addressDetails[index]);
 
                   if (provider.currentLocation != null) {
                     await context.read<SettingsProvider>().getSettings(provider.currentLocation);
                   }
-                  Navigator.pop(context);
                 },
               );
               }),

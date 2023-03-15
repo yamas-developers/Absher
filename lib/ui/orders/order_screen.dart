@@ -14,6 +14,7 @@ import '../../helpers/public_methods.dart';
 import '../../models/order.dart';
 import '../../providers/order/order_detail_provider.dart';
 import '../../providers/order/pending_orders_provider.dart';
+import '../../providers/settings/settings_provider.dart';
 import '../common_widgets/language_aware_widgets.dart';
 import '../common_widgets/misc_widgets.dart';
 
@@ -297,192 +298,196 @@ class OrderItem extends StatelessWidget {
         detailProvider.getData();
         Navigator.pushNamed(context, order_detail_screen);
       },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-        child: Stack(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color.fromRGBO(0, 0, 0, 0.15),
-                      blurRadius: 6,
-                      spreadRadius: .1,
-                    ),
-                  ]),
-              child: Column(
-                children: [
-                  Padding(
-                    padding:
-                        const EdgeInsets.only(top: 12.0, right: 10, left: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+      child: Consumer<SettingsProvider>(
+        builder: (context, settingsProvider, _) {
+      return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            child: Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color.fromRGBO(0, 0, 0, 0.15),
+                          blurRadius: 6,
+                          spreadRadius: .1,
+                        ),
+                      ]),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding:
+                            const EdgeInsets.only(top: 12.0, right: 10, left: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            // SizedBox(width: 6,),
-                            if (isPending)
-                              Text(
-                                "${getString('order__created_at')} ${orderData.createdAt??"N/A"}",
-                                style: TextStyle(
-                                    fontSize: 12, color: darkGreyColor),
-                              )
-                            else
-                              Text(
-                                "${getString('order__delivered_at')} 10:38pm, 20.02.2022",
-                                style: TextStyle(
-                                    fontSize: 12, color: darkGreyColor),
-                              ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // SizedBox(width: 6,),
+                                if (isPending)
+                                  Text(
+                                    "${getString('order__created_at')} ${orderData.createdAt??"N/A"}",
+                                    style: TextStyle(
+                                        fontSize: 12, color: darkGreyColor),
+                                  )
+                                else
+                                  Text(
+                                    "${getString('order__delivered_at')} 10:38pm, 20.02.2022",
+                                    style: TextStyle(
+                                        fontSize: 12, color: darkGreyColor),
+                                  ),
+                              ],
+                            ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Row(
+                                children: [
+                                  RoundedAvatar(
+                                      assetPath: 'assets/images/temp/dish.png',
+                                      height: 60,
+                                      width: 60),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              flex: 7,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 0, vertical: 4),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // SizedBox(height: 12,),
+                                    Text(
+                                      "${orderData.restaurant?.name}",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 16,
+                                          color: Colors.black),
+                                    ),
+                                    Text(
+                                      "${settingsProvider.zone?.zoneData?.first.currency_symbol} ${orderData.orderAmount}",
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: mainColor),
+                                    ),
+                                    // SizedBox(height: 12,),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // SizedBox(height: 6,),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 18.0, vertical: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "${getString('common__order')} #${orderData.id}",
+                              style: TextStyle(fontSize: 13, color: darkGreyColor),
+                            ),
+                            ReflectByLanguage(
+                              child: Image.asset(
+                                "assets/icons/right_arrow.png",
+                                color: darkGreyColor,
+                                fit: BoxFit.fill,
+                                width: 25,
+                                // width: 20,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // if(isPending)
+                      Opacity(
+                        opacity: isPending? 0.3: 1,
+                        child: Container(
+                          // padding: EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                              border: Border(top: BorderSide(color: darkGreyColor))),
                           child: Row(
                             children: [
-                              RoundedAvatar(
-                                  assetPath: 'assets/images/temp/dish.png',
-                                  height: 60,
-                                  width: 60),
+                              Expanded(
+                                child: TouchableOpacity(
+                                  onTap: () {},
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    decoration: BoxDecoration(
+                                        border: Border(
+                                            right: BorderSide(color: darkGreyColor))),
+                                    child: Text(
+                                      getString("order__re_order"),
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          color: mainColor,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: TouchableOpacity(
+                                  onTap: () {},
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    child: Text(
+                                      getString("order__rate_order"),
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          color: mainColor,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500),
+                                    ),
+                                  ),
+                                ),
+                              )
                             ],
                           ),
                         ),
-                        Expanded(
-                          flex: 7,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 0, vertical: 4),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // SizedBox(height: 12,),
-                                Text(
-                                  "${orderData.restaurant?.name}",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 16,
-                                      color: Colors.black),
-                                ),
-                                Text(
-                                  "${getString('common__qar')} ${orderData.orderAmount}",
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: mainColor),
-                                ),
-                                // SizedBox(height: 12,),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      )
+                    ],
                   ),
-                  // SizedBox(height: 6,),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 18.0, vertical: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "${getString('common__order')} #${orderData.id}",
-                          style: TextStyle(fontSize: 13, color: darkGreyColor),
-                        ),
-                        ReflectByLanguage(
-                          child: Image.asset(
-                            "assets/icons/right_arrow.png",
-                            color: darkGreyColor,
-                            fit: BoxFit.fill,
-                            width: 25,
-                            // width: 20,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // if(isPending)
-                  Opacity(
-                    opacity: isPending? 0.3: 1,
-                    child: Container(
-                      // padding: EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                          border: Border(top: BorderSide(color: darkGreyColor))),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TouchableOpacity(
-                              onTap: () {},
-                              child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                decoration: BoxDecoration(
-                                    border: Border(
-                                        right: BorderSide(color: darkGreyColor))),
-                                child: Text(
-                                  getString("order__re_order"),
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      color: mainColor,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: TouchableOpacity(
-                              onTap: () {},
-                              child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                child: Text(
-                                  getString("order__rate_order"),
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      color: mainColor,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              ),
-                            ),
-                          )
-                        ],
+                ),
+                Positioned(
+                  top: 14,
+                  right: isLtr(context) ? 18 : null,
+                  left: isLtr(context) ? null : 18,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Image.asset(
+                        "assets/icons/done_icon.png",
+                        width: 38,
+                        height: 38,
                       ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            Positioned(
-              top: 14,
-              right: isLtr(context) ? 18 : null,
-              left: isLtr(context) ? null : 18,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Image.asset(
-                    "assets/icons/done_icon.png",
-                    width: 38,
-                    height: 38,
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        }
       ),
     );
   }

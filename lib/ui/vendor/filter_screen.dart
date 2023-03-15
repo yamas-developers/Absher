@@ -177,6 +177,7 @@ class _FilterScreenState extends State<FilterScreen> {
                       QueryParams params = provider.params;
                       params.rating = ratingSliderValue.floorToDouble();
                       provider.params = params;
+                      getDataForReataurantsFilter(params, context);
                       Navigator.pop(context);
                     },
                     child: Container(
@@ -208,6 +209,7 @@ class _FilterScreenState extends State<FilterScreen> {
                     QueryParams params = provider.params;
                     params.rating = null;
                     provider.params = params;
+                    getDataForReataurantsFilter(params, context);
                     Navigator.pop(context);
                   },
                     child: Text("Clear Filters"),),

@@ -153,12 +153,16 @@ class _SearchScreenState extends State<SearchScreen> {
                   ],
                 ),
               ),
-              ...safeguardConnectivityAndService(context: context, widgets: [
+              ...safeguardConnectivityAndService(context: context, widgets: provider.loading? [
+
+                SizedBox(height: getHeight(context)*0.3,),
+                LoadingIndicator(),
+              ] : [
                 Padding(
                   padding: const EdgeInsets.only(left: 18, right: 18, top: 18),
                   child: Column(
                     children: [
-                      if (provider.loading) LoadingIndicator(),
+
                       if (provider.list.length < 1 && !provider.loading)
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 18.0),
@@ -221,26 +225,31 @@ class _SearchScreenState extends State<SearchScreen> {
                                 child: Container(
                                   decoration: BoxDecoration(
                                       // color: Colors.red,
-                                      borderRadius: BorderRadius.circular(15),
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color: lightGreyColor
-                                                .withOpacity(0.35),
-                                            blurRadius: 12,
-                                            offset: Offset(2, 4))
-                                      ]),
+                                      // borderRadius: BorderRadius.circular(15),
+                                      // boxShadow: [
+                                      //   BoxShadow(
+                                      //       color: lightGreyColor
+                                      //           .withOpacity(0.35),
+                                      //       blurRadius: 12,
+                                      //       offset: Offset(2, 4))
+                                      // ],
+                                  ),
                                   padding: EdgeInsets.only(
                                       left: index == 0 ? 14 : 4, right: 4),
-                                  child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(15),
-                                      child: ImageWithPlaceholder(
-                                          image: provider.popularBusiness[index]
-                                              .coverPhoto,
-                                          prefix:
-                                              MJ_Apis.restaurantCoverImgPath,
-                                          width: 130,
-                                          height: 150,
-                                          fit: BoxFit.fill)),
+                                  child: Card(
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    child: Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                        child: ImageWithPlaceholder(
+                                            image: provider.popularBusiness[index]
+                                                .logo,
+                                            prefix:
+                                                MJ_Apis.restaurantImgPath,
+                                            width: 110,
+                                            height: 150,
+                                            fit: BoxFit.contain),
+                                      ),
+                                  ),
                                 ),
                               ))
                     ],

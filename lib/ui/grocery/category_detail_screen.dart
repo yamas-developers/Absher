@@ -17,6 +17,7 @@ import '../../models/user.dart';
 import '../../providers/business/store_detail_provider.dart';
 import '../../providers/cart/cart_provider.dart';
 import '../../providers/other/favorite_provider.dart';
+import '../../providers/settings/settings_provider.dart';
 import '../../providers/user/user_provider.dart';
 import '../common_widgets/misc_widgets.dart';
 
@@ -438,163 +439,167 @@ class ProductItem extends StatefulWidget {
 class _ProductItemState extends State<ProductItem> {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        decoration: BoxDecoration(
-            border: Border.all(color: lightGreyColor),
-            borderRadius: BorderRadius.circular(15)),
-        child: Padding(
+    return Consumer<SettingsProvider>(
+        builder: (context, settingsProvider, _) {
+          return  Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Stack(
+          child: Container(
+            decoration: BoxDecoration(
+                border: Border.all(color: lightGreyColor),
+                borderRadius: BorderRadius.circular(15)),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: ImageWithPlaceholder(
-                          image: widget.product?.image,
-                          prefix: MJ_Apis.productImgPath,
-                          height: null,
-                          width: getWidth(context),
-                          // height: 104,
-                          fit: null)),
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: GestureDetector(
-                      onTap: () async {
-                        User? user =
-                            Provider.of<UserProvider>(context, listen: false)
-                                .currentUser;
-                        // if(isFavorite)
-                        // await favProvider.removeFavoriteProduct(user?.id, product?.id);
-                        // else
+                  Stack(
+                    children: [
+                      ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: ImageWithPlaceholder(
+                              image: widget.product?.image,
+                              prefix: MJ_Apis.productImgPath,
+                              height: null,
+                              width: getWidth(context),
+                              // height: 104,
+                              fit: null)),
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: GestureDetector(
+                          onTap: () async {
+                            User? user =
+                                Provider.of<UserProvider>(context, listen: false)
+                                    .currentUser;
+                            // if(isFavorite)
+                            // await favProvider.removeFavoriteProduct(user?.id, product?.id);
+                            // else
 
-                        await context.read<FavoriteProvider>().addFavoriteProduct(
-                            user?.id, widget.product?.id);
-                        setState(() {
-                          widget.isFavorite = true;
-                        });
-                      },
-                      child: Container(
-                        height: 30,
-                        padding: EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white,
-                            boxShadow: [
-                              BoxShadow(
-                                  color: darkGreyColor.withOpacity(0.3),
-                                  blurRadius: 8,
-                                  offset: Offset(1, 4))
-                            ]),
-                        child: Image.asset(
-                          widget.isFavorite
-                              ? "assets/icons/favorite_filled.png"
-                              : "assets/icons/favorite.png",
-                          // width: 84,
-                          color: mainColor,
-                          height: 28,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              Text(
-                "QAR ${widget.product?.price ?? "N/A"}",
-                style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 15,
-                    color: mainColor),
-              ),
-              SizedBox(
-                height: 4,
-              ),
-              Text(
-                "${widget.product?.name ?? "N/A"}",
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                // textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: darkGreyColor,
-                ),
-              ),
-              // SizedBox(
-              //   height: 14,
-              // ),
-              Spacer(),
-              if (widget.quantity == 0)
-                GestureDetector(
-                    onTap: widget.addToCart,
-                    child: Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 6, horizontal: 14),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(6),
-                          color: mainColor),
-                      child: Text(
-                        "+Add",
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white),
-                      ),
-                    ))
-              else
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    InkWell(
-                      onTap: widget.onDecrease,
-                      child: Image.asset(
-                        "assets/icons/minus_filled.png",
-                        height: 24,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 8,
-                    ),
-                    Expanded(
-                      child: Container(
-                        // width: 60,
-                        padding:
-                            EdgeInsets.symmetric(vertical: 4, horizontal: 0),
-                        decoration: BoxDecoration(
-                            color: mainColor,
-                            borderRadius: BorderRadius.circular(12)),
-                        child: Center(
-                          child: Text(
-                            "${widget.quantity}",
-                            style: TextStyle(
+                            await context.read<FavoriteProvider>().addFavoriteProduct(
+                                user?.id, widget.product?.id);
+                            setState(() {
+                              widget.isFavorite = true;
+                            });
+                          },
+                          child: Container(
+                            height: 30,
+                            padding: EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle,
                                 color: Colors.white,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 15),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: darkGreyColor.withOpacity(0.3),
+                                      blurRadius: 8,
+                                      offset: Offset(1, 4))
+                                ]),
+                            child: Image.asset(
+                              widget.isFavorite
+                                  ? "assets/icons/favorite_filled.png"
+                                  : "assets/icons/favorite.png",
+                              // width: 84,
+                              color: mainColor,
+                              height: 28,
+                            ),
                           ),
                         ),
                       ),
+                    ],
+                  ),
+                  Text(
+                    "${settingsProvider.zone?.zoneData?.first.currency_symbol} ${widget.product?.price ?? "N/A"}",
+                    style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 15,
+                        color: mainColor),
+                  ),
+                  SizedBox(
+                    height: 4,
+                  ),
+                  Text(
+                    "${widget.product?.name ?? "N/A"}",
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    // textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: darkGreyColor,
                     ),
-                    SizedBox(
-                      width: 8,
-                    ),
-                    InkWell(
-                      onTap: widget.onIncrease,
-                      child: Image.asset(
-                        "assets/icons/plus_filled.png",
-                        height: 24,
-                      ),
-                    ),
-                  ],
-                )
-            ],
+                  ),
+                  // SizedBox(
+                  //   height: 14,
+                  // ),
+                  Spacer(),
+                  if (widget.quantity == 0)
+                    GestureDetector(
+                        onTap: widget.addToCart,
+                        child: Container(
+                          padding:
+                              EdgeInsets.symmetric(vertical: 6, horizontal: 14),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(6),
+                              color: mainColor),
+                          child: Text(
+                            "+Add",
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white),
+                          ),
+                        ))
+                  else
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        InkWell(
+                          onTap: widget.onDecrease,
+                          child: Image.asset(
+                            "assets/icons/minus_filled.png",
+                            height: 24,
+                          ),
+                        ),
+                        SizedBox(
+                          width: 8,
+                        ),
+                        Expanded(
+                          child: Container(
+                            // width: 60,
+                            padding:
+                                EdgeInsets.symmetric(vertical: 4, horizontal: 0),
+                            decoration: BoxDecoration(
+                                color: mainColor,
+                                borderRadius: BorderRadius.circular(12)),
+                            child: Center(
+                              child: Text(
+                                "${widget.quantity}",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 15),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 8,
+                        ),
+                        InkWell(
+                          onTap: widget.onIncrease,
+                          child: Image.asset(
+                            "assets/icons/plus_filled.png",
+                            height: 24,
+                          ),
+                        ),
+                      ],
+                    )
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      }
     );
   }
 }

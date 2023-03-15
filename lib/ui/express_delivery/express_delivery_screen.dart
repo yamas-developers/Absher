@@ -1,5 +1,6 @@
 import 'package:absher/helpers/public_methods.dart';
 import 'package:absher/models/misc_models.dart';
+import 'package:absher/providers/settings/settings_provider.dart';
 import 'package:absher/ui/common_widgets/rounded_center_button.dart';
 import 'package:flutter/material.dart';
 import 'package:place_picker/entities/location_result.dart';
@@ -25,254 +26,258 @@ class _ExpressDeliveryScreenState extends State<ExpressDeliveryScreen> {
   @override
   Widget build(BuildContext context) {
     List<Widget> children = [
-      Consumer<ExpressProvider>(builder: (context, provider, _) {
-        return SingleChildScrollView(
-          // height: getHeight(context),
-          child: Column(
-            children: [
-              SizedBox(
-                height: 6,
-              ),
-              Container(
-                padding: EdgeInsets.fromLTRB(0, 15, 18, 0),
-                child: Flex(
-                  direction: Axis.horizontal,
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: ReflectByLanguage(
-                              child: Image.asset(
-                                "assets/icons/back_arrow_icon.png",
-                                width: 24,
-                                height: 24,
+      Consumer<SettingsProvider>(
+        builder: (context, settingsProvider, _) {
+          return Consumer<ExpressProvider>(builder: (context, provider, _) {
+            return SingleChildScrollView(
+              // height: getHeight(context),
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 6,
+                  ),
+                  Container(
+                    padding: EdgeInsets.fromLTRB(0, 15, 18, 0),
+                    child: Flex(
+                      direction: Axis.horizontal,
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                },
+                                child: ReflectByLanguage(
+                                  child: Image.asset(
+                                    "assets/icons/back_arrow_icon.png",
+                                    width: 24,
+                                    height: 24,
+                                  ),
+                                ),
                               ),
-                            ),
+                              SizedBox(
+                                width: 8,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          flex: 8,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Flexible(
+                                  child: Text(
+                                "${getString('app_name')} ${getString('express__express')}",
+                                style: TextStyle(
+                                    fontSize: 18,
+                                    color: mainColor,
+                                    fontWeight: FontWeight.w500),
+                              )),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Center(
+                    child: Text(
+                      getString('express__from_here_there'),
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Row(
+                    children: [
+                      // SizedBox(width: 20,),
+                      Column(
+                        children: [
+                          CircularPoint(),
+                          SizedBox(
+                            height: 4,
+                          ),
+                          Container(
+                            height: 30,
+                            width: 3,
+                            decoration: BoxDecoration(color: Colors.black),
                           ),
                           SizedBox(
-                            width: 8,
+                            height: 4,
                           ),
+                          CircularPoint(),
                         ],
                       ),
-                    ),
-                    Expanded(
-                      flex: 8,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Flexible(
-                              child: Text(
-                            "${getString('app_name')} ${getString('express__express')}",
-                            style: TextStyle(
-                                fontSize: 18,
-                                color: mainColor,
-                                fontWeight: FontWeight.w500),
-                          )),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Center(
-                child: Text(
-                  getString('express__from_here_there'),
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700),
-                ),
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              Row(
-                children: [
-                  // SizedBox(width: 20,),
-                  Column(
-                    children: [
-                      CircularPoint(),
                       SizedBox(
-                        height: 4,
+                        width: 20,
                       ),
-                      Container(
-                        height: 30,
-                        width: 3,
-                        decoration: BoxDecoration(color: Colors.black),
+                      Expanded(
+                        child: Column(
+                          children: [
+                            GestureDetector(
+                              onTap: () async {
+                                LocationResult result = await Navigator.of(context)
+                                    .push(MaterialPageRoute(
+                                        builder: (context) =>
+                                            PlacePicker(GOOGLE_API_KEY)));
+                                ExpressAddress address = ExpressAddress(
+                                    address: result.formattedAddress,
+                                    lat: result.latLng!.latitude,
+                                    lng: result.latLng!.longitude);
+                                if(provider.destinationAddress?.address == address.address){
+                                  showToast("Pickup and Delivery location can be same");
+                                  return;
+                                }
+                                provider.pickupAddress = address;
+
+                                // street1.text = result.name.toString();
+                                // landmark1.text = result.subLocalityLevel1!.name == null
+                                //     ? result.subLocalityLevel2!.name.toString()
+                                //     : result.subLocalityLevel1!.name.toString();
+                                // city1.text = result.city!.name.toString();
+                                // cutries1.text = result.country!.name.toString();
+                                // zipcode1.text = result.postalCode.toString();
+                                // lat = result.latLng!.latitude;
+                                // long = result.latLng!.longitude;
+
+                                // setState(() {});
+                              },
+                              child: DeliveryAddressItem(
+                                title: provider.pickupAddress?.address ??
+                                    getString("express__enter_pickup_address"),
+                                color: provider.pickupAddress?.address == null
+                                    ? lightGreyFontColor
+                                    : Colors.black,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            GestureDetector(
+                              onTap: () async {
+                                LocationResult result = await Navigator.of(context)
+                                    .push(MaterialPageRoute(
+                                        builder: (context) =>
+                                            PlacePicker(GOOGLE_API_KEY)));
+
+                                ExpressAddress address = ExpressAddress(
+                                    address: result.formattedAddress,
+                                    lat: result.latLng!.latitude,
+                                    lng: result.latLng!.longitude);
+                                if(provider.pickupAddress?.address == address.address){
+                                  showToast("Pickup and Delivery location can be same");
+                                  return;
+                                }
+
+                                provider.destinationAddress = address;
+                              },
+                              child: DeliveryAddressItem(
+                                title: provider.destinationAddress?.address ??
+                                    getString("express__enter_delivery_address"),
+                                color: provider.destinationAddress?.address == null
+                                    ? lightGreyFontColor
+                                    : Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      SizedBox(
-                        height: 4,
-                      ),
-                      CircularPoint(),
                     ],
                   ),
                   SizedBox(
-                    width: 20,
+                    height: 15,
                   ),
-                  Expanded(
-                    child: Column(
+                  Center(
+                    child: Image.asset(
+                      "assets/images/absher_express.png",
+                      height: getSize(context, 0.3, 250, 200),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  BulletList([
+                    getString('express__maximum_size'),
+                    getString('express__maximum_weight'),
+                    '${getString('app_name')} ${getString('express__does_not_provide_package')}'
+                  ]),
+                  Divider(),
+                  if (provider.pickupAddress != null && provider.destinationAddress != null)
+                    Column(
                       children: [
-                        GestureDetector(
-                          onTap: () async {
-                            LocationResult result = await Navigator.of(context)
-                                .push(MaterialPageRoute(
-                                    builder: (context) =>
-                                        PlacePicker(GOOGLE_API_KEY)));
-                            ExpressAddress address = ExpressAddress(
-                                address: result.formattedAddress,
-                                lat: result.latLng!.latitude,
-                                lng: result.latLng!.longitude);
-                            if(provider.destinationAddress?.address == address.address){
-                              showToast("Pickup and Delivery location can be same");
-                              return;
-                            }
-                            provider.pickupAddress = address;
-
-                            // street1.text = result.name.toString();
-                            // landmark1.text = result.subLocalityLevel1!.name == null
-                            //     ? result.subLocalityLevel2!.name.toString()
-                            //     : result.subLocalityLevel1!.name.toString();
-                            // city1.text = result.city!.name.toString();
-                            // cutries1.text = result.country!.name.toString();
-                            // zipcode1.text = result.postalCode.toString();
-                            // lat = result.latLng!.latitude;
-                            // long = result.latLng!.longitude;
-
-                            // setState(() {});
-                          },
-                          child: DeliveryAddressItem(
-                            title: provider.pickupAddress?.address ??
-                                getString("express__enter_pickup_address"),
-                            color: provider.pickupAddress?.address == null
-                                ? lightGreyFontColor
-                                : Colors.black,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              '${settingsProvider.zone?.zoneData?.first.currency_symbol}',
+                              style: TextStyle(
+                                  fontSize: 15,
+                                  color: mainColor,
+                                  fontWeight: FontWeight.w400),
+                            ),
+                            SizedBox(
+                              width: 4,
+                            ),
+                            Text(
+                              "30",
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  color: mainColor,
+                                  fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        if(false)
+                        Center(
+                          child: Text(
+                            "${getString('express__pick_up_at')} 2:30 pm | ${getString('express__delivery_at')} 9:30 pm",
+                            style: TextStyle(
+                                fontSize: 13,
+                                color: mediumGreyColor,
+                                fontWeight: FontWeight.w400),
                           ),
                         ),
                         SizedBox(
-                          height: 10,
+                          height: 8,
                         ),
-                        GestureDetector(
-                          onTap: () async {
-                            LocationResult result = await Navigator.of(context)
-                                .push(MaterialPageRoute(
-                                    builder: (context) =>
-                                        PlacePicker(GOOGLE_API_KEY)));
-
-                            ExpressAddress address = ExpressAddress(
-                                address: result.formattedAddress,
-                                lat: result.latLng!.latitude,
-                                lng: result.latLng!.longitude);
-                            if(provider.pickupAddress?.address == address.address){
-                              showToast("Pickup and Delivery location can be same");
-                              return;
-                            }
-
-                            provider.destinationAddress = address;
+                        Center(
+                            child: RoundedCenterButtton(
+                          title: getString("express__enter_details"),
+                          onPressed: () {
+                            Navigator.pushNamed(context, express_details_screen);
                           },
-                          child: DeliveryAddressItem(
-                            title: provider.destinationAddress?.address ??
-                                getString("express__enter_delivery_address"),
-                            color: provider.destinationAddress?.address == null
-                                ? lightGreyFontColor
-                                : Colors.black,
-                          ),
-                        ),
+                        )),
                       ],
+                    )
+                  else
+                    Padding(
+                      padding:
+                          const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20),
+                      child: Text(
+                        getString("express__select_locations"),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 12),
+                      ),
                     ),
+                  SizedBox(
+                    height: 15,
                   ),
                 ],
               ),
-              SizedBox(
-                height: 15,
-              ),
-              Center(
-                child: Image.asset(
-                  "assets/images/absher_express.png",
-                  height: getSize(context, 0.3, 250, 200),
-                ),
-              ),
-              SizedBox(
-                height: 15,
-              ),
-              BulletList([
-                getString('express__maximum_size'),
-                getString('express__maximum_weight'),
-                '${getString('app_name')} ${getString('express__does_not_provide_package')}'
-              ]),
-              Divider(),
-              if (provider.pickupAddress != null && provider.destinationAddress != null)
-                Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          getString('common__qar'),
-                          style: TextStyle(
-                              fontSize: 15,
-                              color: mainColor,
-                              fontWeight: FontWeight.w400),
-                        ),
-                        SizedBox(
-                          width: 4,
-                        ),
-                        Text(
-                          "30",
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: mainColor,
-                              fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 8,
-                    ),
-                    if(false)
-                    Center(
-                      child: Text(
-                        "${getString('express__pick_up_at')} 2:30 pm | ${getString('express__delivery_at')} 9:30 pm",
-                        style: TextStyle(
-                            fontSize: 13,
-                            color: mediumGreyColor,
-                            fontWeight: FontWeight.w400),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 8,
-                    ),
-                    Center(
-                        child: RoundedCenterButtton(
-                      title: getString("express__enter_details"),
-                      onPressed: () {
-                        Navigator.pushNamed(context, express_details_screen);
-                      },
-                    )),
-                  ],
-                )
-              else
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20),
-                  child: Text(
-                    getString("express__select_locations"),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 12),
-                  ),
-                ),
-              SizedBox(
-                height: 15,
-              ),
-            ],
-          ),
-        );
-      }),
+            );
+          });
+        }
+      ),
       // if(isPortrait(context)) Spacer(),
       // SizedBox(
       //   height: getHeight(context) * .25,

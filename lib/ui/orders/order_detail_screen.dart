@@ -8,6 +8,7 @@ import '../../helpers/constants.dart';
 import '../../helpers/public_methods.dart';
 import '../../helpers/route_constants.dart';
 import '../../providers/order/order_detail_provider.dart';
+import '../../providers/settings/settings_provider.dart';
 import '../common_widgets/avatar.dart';
 import '../common_widgets/checkout_amount_row.dart';
 import '../common_widgets/language_aware_widgets.dart';
@@ -1169,7 +1170,7 @@ class StarRating extends StatelessWidget {
         size: size,
       );
     }
-    return new InkResponse(
+    return InkResponse(
       onTap: onRatingChanged == null ? null : () => onRatingChanged(index + 1),
       child: icon,
     );
@@ -1217,87 +1218,91 @@ class OrderDetailOneItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          // SizedBox(
-          //   width: 6,
-          // ),
-          Expanded(
-              flex: 3,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    "assets/images/temp/order_item${index}.png",
-                    height: 40,
-                    fit: BoxFit.cover,
-                  ),
-                ],
-              )),
-          SizedBox(
-            width: 4,
-          ),
-          Expanded(
-            flex: 8,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // SizedBox(height: 12,),
-                  Text(
-                    "${getString('common__qar')} 2.99",
-                    style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        color: Colors.black),
-                  ),
-                  SizedBox(
-                    height: 2,
-                  ),
-                  Text(
-                    "Lorem ipsum dolor sit amet  et dolore",
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w400),
-                  ),
-
-                  // SizedBox(height: 12,),
-                ],
+    return Consumer<SettingsProvider>(
+        builder: (context, settingsProvider, _) {
+          return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Row(
+            children: [
+              // SizedBox(
+              //   width: 6,
+              // ),
+              Expanded(
+                  flex: 3,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        "assets/images/temp/order_item${index}.png",
+                        height: 40,
+                        fit: BoxFit.cover,
+                      ),
+                    ],
+                  )),
+              SizedBox(
+                width: 4,
               ),
-            ),
-          ),
-          SizedBox(
-            width: 20,
-          ),
-          Expanded(
-              flex: 2,
-              child: Column(
-                children: [
-                  Text(
-                    getString("common__qty"),
-                    style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w400),
+              Expanded(
+                flex: 8,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // SizedBox(height: 12,),
+                      Text(
+                        "${settingsProvider.zone?.zoneData?.first.currency_symbol} 2.99",
+                        style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            color: Colors.black),
+                      ),
+                      SizedBox(
+                        height: 2,
+                      ),
+                      Text(
+                        "Lorem ipsum dolor sit amet  et dolore",
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w400),
+                      ),
+
+                      // SizedBox(height: 12,),
+                    ],
                   ),
-                  Text(
-                    "${index}",
-                    style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w600),
-                  ),
-                ],
-              )),
-          SizedBox(
-            width: 20,
-          )
-        ],
-      ),
+                ),
+              ),
+              SizedBox(
+                width: 20,
+              ),
+              Expanded(
+                  flex: 2,
+                  child: Column(
+                    children: [
+                      Text(
+                        getString("common__qty"),
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w400),
+                      ),
+                      Text(
+                        "${index}",
+                        style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  )),
+              SizedBox(
+                width: 20,
+              )
+            ],
+          ),
+        );
+      }
     );
   }
 }

@@ -16,6 +16,7 @@ import '../../models/category_product.dart';
 import '../../models/user.dart';
 import '../../providers/cart/cart_provider.dart';
 import '../../providers/other/favorite_provider.dart';
+import '../../providers/settings/settings_provider.dart';
 import '../../providers/user/user_provider.dart';
 import '../common_widgets/avatar.dart';
 import '../common_widgets/build_slide_transition.dart';
@@ -765,136 +766,140 @@ class RestaurantFoodItem extends StatelessWidget {
         Navigator.pushNamed(context, food_detail_screen,
             arguments: {"product": product, "type": type});
       },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6.0),
-        child: Row(
-          children: [
-            Expanded(
-                flex: 3,
-                child: Hero(
-                  tag: ValueKey("${product.id}"),
-                  child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: ImageWithPlaceholder(
-                          image: product.image,
-                          prefix: MJ_Apis.productImgPath,
-                          width: 110,
-                          fit: BoxFit.fitWidth)),
-                )),
-            Expanded(
-              flex: 8,
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // SizedBox(height: 12,),
-                    Text(
-                      "${product.name}",
-                      style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          color: Colors.black54),
+      child: Consumer<SettingsProvider>(
+        builder: (context, settingsProvider, _) {
+      return  Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6.0),
+            child: Row(
+              children: [
+                Expanded(
+                    flex: 3,
+                    child: Hero(
+                      tag: ValueKey("${product.id}"),
+                      child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: ImageWithPlaceholder(
+                              image: product.image,
+                              prefix: MJ_Apis.productImgPath,
+                              width: 110,
+                              fit: BoxFit.fitWidth)),
+                    )),
+                Expanded(
+                  flex: 8,
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // SizedBox(height: 12,),
+                        Text(
+                          "${product.name}",
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                              color: Colors.black54),
+                        ),
+                        Text(
+                          "${product.description}",
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 13, color: Colors.black54),
+                        ),
+                        // SizedBox(height: 12,),
+                      ],
                     ),
-                    Text(
-                      "${product.description}",
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 13, color: Colors.black54),
-                    ),
-                    // SizedBox(height: 12,),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-            Expanded(
-              flex: 4,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      "QAR ${product.price}",
-                      style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 15,
-                          color: labelGreenColor),
-                    ),
-                    SizedBox(
-                      height: 4,
-                    ),
-                    if (quantity == 0)
-                      GestureDetector(
-                          onTap: addToCart,
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 6, horizontal: 14),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(6),
-                                color: mainColor),
-                            child: Text(
-                              "+Add",
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white),
-                            ),
-                          ))
-                    else
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          InkWell(
-                            onTap: onDecrease,
-                            child: Image.asset(
-                              "assets/icons/minus_filled.png",
-                              height: 24,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 8,
-                          ),
-                          Expanded(
-                            child: Container(
-                              // width: 60,
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 4, horizontal: 0),
-                              decoration: BoxDecoration(
-                                  color: mainColor,
-                                  borderRadius: BorderRadius.circular(12)),
-                              child: Center(
+                Expanded(
+                  flex: 4,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          "${settingsProvider.zone?.zoneData?.first.currency_symbol} ${product.price}",
+                          style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 15,
+                              color: labelGreenColor),
+                        ),
+                        SizedBox(
+                          height: 4,
+                        ),
+                        if (quantity == 0)
+                          GestureDetector(
+                              onTap: addToCart,
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 6, horizontal: 14),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(6),
+                                    color: mainColor),
                                 child: Text(
-                                  "${quantity}",
+                                  "+Add",
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      fontSize: 14,
                                       fontWeight: FontWeight.w500,
-                                      fontSize: 15),
+                                      color: Colors.white),
+                                ),
+                              ))
+                        else
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              InkWell(
+                                onTap: onDecrease,
+                                child: Image.asset(
+                                  "assets/icons/minus_filled.png",
+                                  height: 24,
                                 ),
                               ),
-                            ),
+                              SizedBox(
+                                width: 8,
+                              ),
+                              Expanded(
+                                child: Container(
+                                  // width: 60,
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 4, horizontal: 0),
+                                  decoration: BoxDecoration(
+                                      color: mainColor,
+                                      borderRadius: BorderRadius.circular(12)),
+                                  child: Center(
+                                    child: Text(
+                                      "${quantity}",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 15),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 8,
+                              ),
+                              InkWell(
+                                onTap: onIncrease,
+                                child: Image.asset(
+                                  "assets/icons/plus_filled.png",
+                                  height: 24,
+                                ),
+                              ),
+                            ],
                           ),
-                          SizedBox(
-                            width: 8,
-                          ),
-                          InkWell(
-                            onTap: onIncrease,
-                            child: Image.asset(
-                              "assets/icons/plus_filled.png",
-                              height: 24,
-                            ),
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
-              ),
-            )
-          ],
-        ),
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+          );
+        }
       ),
     );
   }
@@ -927,9 +932,9 @@ class MySliverAppBar extends SliverPersistentHeaderDelegate {
       clipBehavior: Clip.none,
       fit: StackFit.expand,
       children: [
-        Image.network(
-            "${MJ_Apis.restaurantCoverImgPath}${provider.business?.coverPhoto}",
-            fit: BoxFit.cover),
+        ImageWithPlaceholder(
+            image: "${provider.business?.coverPhoto}",
+            fit: BoxFit.cover, prefix: '${MJ_Apis.restaurantCoverImgPath}',),
         if (shrinkOffset / expandedHeight > 0.5)
           Builder(builder: (context) {
             print("in builder");

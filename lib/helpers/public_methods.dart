@@ -1,6 +1,10 @@
 import 'dart:developer';
 import 'dart:ui' as ui;
 import 'package:absher/helpers/constants.dart';
+import 'package:absher/providers/business/delivery_pharma_provider.dart';
+import 'package:absher/providers/business/grocery_store_provider.dart';
+import 'package:absher/providers/business/takeaway_pharma_provider.dart';
+import 'package:absher/providers/business/takeaway_restaurant_provider.dart';
 import 'package:absher/providers/settings/settings_provider.dart';
 import 'package:absher/ui/common_widgets/misc_widgets.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -9,6 +13,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
+import '../models/misc_models.dart';
+import '../providers/business/delivery_restaurant_provider.dart';
 import '../providers/location/location_provider.dart';
 import 'app_loader.dart';
 
@@ -406,4 +412,17 @@ getSettingsData({required BuildContext context, showToast = false, bool shouldGe
     }
   }
   settingsProvider.loading = false;
+}
+
+getDataForReataurantsFilter(QueryParams params, BuildContext context){
+  context.read<DeliveryRestaurantProvider>().reset(params: params);
+  context.read<TakeawayRestaurantProvider>().reset(params: params);
+  context.read<TakeawayPharmaProvider>().reset(params: params);
+  context.read<DeliveryPharmaProvider>().reset(params: params);
+  context.read<GroceryStoreProvider>().reset(params: params);
+}
+getParametersForStores(QueryParams? params){
+  return '&with_rating=${params?.rating ?? ""}'
+      '&searched_text=${params?.searchedText ?? ""}'
+      '&top_rated=${(params?.showTopRated ?? false) ? "1" : ''}"';
 }

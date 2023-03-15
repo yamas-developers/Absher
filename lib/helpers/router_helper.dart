@@ -224,7 +224,7 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       print("default");
       return routeOne(
           settings: settings,
-          widget: HomeScreen(), //login screen
+          widget: BottomAppBarPage(), //login screen
           routeName: home_screen);
   }
 }

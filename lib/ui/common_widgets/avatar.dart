@@ -1,4 +1,5 @@
 import 'package:absher/helpers/constants.dart';
+import 'package:absher/ui/common_widgets/misc_widgets.dart';
 import 'package:flutter/material.dart';
 
 class RoundedAvatar extends StatelessWidget {
@@ -67,11 +68,11 @@ class RoundedNetworkAvatar extends StatelessWidget {
           padding: const EdgeInsets.all(0),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(100),
-            child: url != null ? Image.network(
-              "${prefix!=null?"$prefix/":""}$url",
+            child: url != null ? ImageWithPlaceholder(
+              image: "$url",
               fit: fit,
               width: width,
-              height: height,
+              height: height, prefix: '${prefix!=null?"$prefix/":""}',
             ) : Image.asset(
             PLACEHOLDER_IAMGE_PATH,
             height: height,

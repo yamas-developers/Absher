@@ -38,6 +38,7 @@ class RestaurantScreen extends StatefulWidget {
 
 class _RestaurantScreenState extends State<RestaurantScreen>
     with TickerProviderStateMixin {
+  TextEditingController _searchController = TextEditingController();
   TabController? tabController;
   bool isDelivery = true;
   bool isSearchExpanded = false;
@@ -117,30 +118,54 @@ class _RestaurantScreenState extends State<RestaurantScreen>
                                     padding: EdgeInsets.symmetric(
                                         vertical: 8, horizontal: 8),
                                     width: getWidth(context) *
-                                        (isSearchExpanded ? 0.81 : 0.4),
+                                        (isSearchExpanded || storeType == BUSINESS_TYPE_STORE ? 0.81 : 0.4),
                                     duration: Duration(milliseconds: 200),
                                     child: Row(
                                       mainAxisAlignment: isSearchExpanded
                                           ? MainAxisAlignment.start
                                           : MainAxisAlignment.center,
                                       children: [
-                                        Image.asset(
-                                          "assets/icons/search_icon.png",
-                                          width: 24,
-                                          color: darkGreyColor,
-                                          height: 24,
+                                        TouchableOpacity(
+                                          onTap: (){
+                                            showToast('Searching');
+                                            FocusManager.instance.primaryFocus?.unfocus();
+                                            QueryParams params = resProvider.params;
+                                            params.searchedText = _searchController.text;
+                                            resProvider.params = params;
+                                            getDataForReataurantsFilter(params, context);
+                                          },
+                                          child: Image.asset(
+                                            "assets/icons/search_icon.png",
+                                            width: 24,
+                                            color: darkGreyColor,
+                                            height: 24,
+                                          ),
                                         ),
                                         SizedBox(
                                           width: 8,
                                         ),
-                                        Text(
-                                          "Search",
-                                          style: TextStyle(
-                                              color: darkGreyColor,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                        if (isSearchExpanded) Spacer(),
+                                        Expanded(
+                                            child: SizedBox(
+                                              height: 30,
+                                              child: TextField(
+                                                controller: _searchController,
+                                                decoration: InputDecoration(
+                                                    contentPadding: EdgeInsets.only(bottom: 12),
+                                                    border: InputBorder.none,
+                                                    labelText: "Search",
+                                                    labelStyle: TextStyle(color: mainColor),
+                                                    floatingLabelBehavior:
+                                                    FloatingLabelBehavior.never),
+                                              ),
+                                            )),
+                                        // Text(
+                                        //   "Search",
+                                        //   style: TextStyle(
+                                        //       color: darkGreyColor,
+                                        //       fontSize: 15,
+                                        //       fontWeight: FontWeight.w500),
+                                        // ),
+                                        // if (isSearchExpanded) Spacer(),
                                         if (isSearchExpanded)
                                           BuildSlideTransition(
                                               animationDuration: 600,
@@ -823,7 +848,11 @@ class _RestaurantAreaState extends State<RestaurantArea> {
             },
             child: widget.resProvider.loading && widget.resProvider.list.isEmpty
                 ? LoadingIndicator()
-                : widget.resProvider.list.isEmpty ? EmptyWidget() : ListView(
+                : widget.resProvider.list.isEmpty ? ListView(
+                  children: [
+                    EmptyWidget(),
+                  ],
+                ) : ListView(
                     children: [
                       ...List.generate(widget.resProvider.list.length, (index) {
                         Business restaurant = widget.resProvider.list[index];
