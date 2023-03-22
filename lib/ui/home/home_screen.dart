@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:absher/api/mj_api_service.dart';
 import 'package:absher/api/mj_apis.dart';
 import 'package:absher/helpers/constants.dart';
 import 'package:absher/helpers/route_constants.dart';
@@ -440,7 +441,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       // SizedBox(width: 8,),
                       HomeTopPickItems(
-                          onPress: () {},
+                          onPress: () {
+                            MjApiService().temp();
+                          },
                           image: 'assets/icons/offers.png',
                           title: getString("home__happy_hour")),
                       // SizedBox(width: 8,),

@@ -1,6 +1,9 @@
 import 'dart:math';
 
+import 'package:absher/api/mj_apis.dart';
+import 'package:absher/models/order_detail.dart';
 import 'package:absher/ui/common_widgets/rounded_center_button.dart';
+import 'package:absher/ui/common_widgets/touchable_opacity.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,6 +15,7 @@ import '../../providers/settings/settings_provider.dart';
 import '../common_widgets/avatar.dart';
 import '../common_widgets/checkout_amount_row.dart';
 import '../common_widgets/language_aware_widgets.dart';
+import '../common_widgets/misc_widgets.dart';
 
 class OrderDetailScreen extends StatefulWidget {
   const OrderDetailScreen({Key? key}) : super(key: key);
@@ -379,22 +383,22 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                             fontSize: 14,
                                             color: mainFontColor),
                                       ),
+                                      // SizedBox(
+                                      //   height: 2,
+                                      // ),
+                                      // Text(
+                                      //   'Home',
+                                      //   style: TextStyle(
+                                      //       fontSize: 13,
+                                      //       color: Colors.black,
+                                      //       fontWeight: FontWeight.w500),
+                                      // ),
                                       SizedBox(
                                         height: 2,
                                       ),
                                       Text(
-                                        getString('order__home'),
-                                        style: TextStyle(
-                                            fontSize: 13,
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                      SizedBox(
-                                        height: 2,
-                                      ),
-                                      Text(
-                                        "251 west Road , London"
-                                        "2nd Floor, 215/52 , Flat 2G",
+                                        "${detailProvider.orderDetailItem?.deliveryAddress?.address ??
+                                            'Address not available'}",
                                         maxLines: 3,
                                         textDirection: TextDirection.ltr,
                                         textAlign: getTextAlignStart(context),
@@ -415,109 +419,116 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                           ),
                         ),
                       )),
-                      buildSlideTransition(Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 6.0, horizontal: 0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: darkGreyColor.withOpacity(.2),
-                                  offset: Offset(0, 1),
-                                  blurRadius: 28,
-                                  spreadRadius: 2),
-                            ],
-                          ),
-                          padding: EdgeInsets.symmetric(
-                              vertical: 12.0, horizontal: 6),
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 6,
-                              ),
-                              Expanded(
-                                  flex: 3,
-                                  child: Image.asset(
-                                    "assets/icons/contact_person_icon.png",
-                                    height: 50,
-                                    color: mainColor,
-                                  )),
-                              SizedBox(
-                                width: 4,
-                              ),
-                              Expanded(
-                                flex: 9,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 4.0, vertical: 4),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // SizedBox(height: 12,),
-                                      Text(
-                                        getString("order__customer_service"),
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 14,
-                                            color: mainFontColor),
-                                      ),
-                                      SizedBox(
-                                        height: 2,
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "023 6526 5236",
-                                            textDirection: TextDirection.ltr,
-                                            style: TextStyle(
-                                                fontSize: 13,
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                          Spacer(),
-                                          Image.asset(
-                                            "assets/icons/whatsapp_icon.png",
-                                            height: 24,
-                                            // color: mainColor,
-                                          )
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: 6,
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            "256 5416 5416",
-                                            textDirection: TextDirection.ltr,
-                                            style: TextStyle(
-                                                fontSize: 13,
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.w500),
-                                          ),
-                                          Spacer(),
-                                          Image.asset(
-                                            "assets/icons/phone_rounded_filled.png",
-                                            height: 24,
-                                            // color: mainColor,
-                                          )
-                                        ],
-                                      ),
-                                      // SizedBox(height: 12,),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                width: 20,
-                              ),
-                            ],
-                          ),
-                        ),
-                      )),
+                      // buildSlideTransition(Padding(
+                      //   padding: const EdgeInsets.symmetric(
+                      //       vertical: 6.0, horizontal: 0),
+                      //   child: Container(
+                      //     decoration: BoxDecoration(
+                      //       color: Colors.white,
+                      //       borderRadius: BorderRadius.circular(12),
+                      //       boxShadow: [
+                      //         BoxShadow(
+                      //             color: darkGreyColor.withOpacity(.2),
+                      //             offset: Offset(0, 1),
+                      //             blurRadius: 28,
+                      //             spreadRadius: 2),
+                      //       ],
+                      //     ),
+                      //     padding: EdgeInsets.symmetric(
+                      //         vertical: 12.0, horizontal: 6),
+                      //     child: Row(
+                      //       children: [
+                      //         SizedBox(
+                      //           width: 6,
+                      //         ),
+                      //         Expanded(
+                      //             flex: 3,
+                      //             child: Image.asset(
+                      //               "assets/icons/contact_person_icon.png",
+                      //               height: 50,
+                      //               color: mainColor,
+                      //             )),
+                      //         SizedBox(
+                      //           width: 4,
+                      //         ),
+                      //         Expanded(
+                      //           flex: 9,
+                      //           child: Padding(
+                      //             padding: const EdgeInsets.symmetric(
+                      //                 horizontal: 4.0, vertical: 4),
+                      //             child: Column(
+                      //               crossAxisAlignment:
+                      //                   CrossAxisAlignment.start,
+                      //               children: [
+                      //                 // SizedBox(height: 12,),
+                      //                 Text(
+                      //                   getString("order__customer_service"),
+                      //                   style: TextStyle(
+                      //                       fontWeight: FontWeight.w600,
+                      //                       fontSize: 14,
+                      //                       color: mainFontColor),
+                      //                 ),
+                      //                 SizedBox(
+                      //                   height: 2,
+                      //                 ),
+                      //                 Row(
+                      //                   children: [
+                      //                     Text(
+                      //                       "023 6526 5236",
+                      //                       textDirection: TextDirection.ltr,
+                      //                       style: TextStyle(
+                      //                           fontSize: 13,
+                      //                           color: Colors.black,
+                      //                           fontWeight: FontWeight.w500),
+                      //                     ),
+                      //                     Spacer(),
+                      //                     TouchableOpacity(
+                      //                       onTap: () {
+                      //                         // FlutterOpenWhatsapp.sendSingleMessage("923056860156", "Hello");
+                      //                         openWhatsApp(
+                      //                             '923056860156', 'Hello');
+                      //                       },
+                      //                       child: Image.asset(
+                      //                         "assets/icons/whatsapp_icon.png",
+                      //                         height: 24,
+                      //                         // color: mainColor,
+                      //                       ),
+                      //                     )
+                      //                   ],
+                      //                 ),
+                      //                 SizedBox(
+                      //                   height: 6,
+                      //                 ),
+                      //                 Row(
+                      //                   children: [
+                      //                     Text(
+                      //                       "256 5416 5416",
+                      //                       textDirection: TextDirection.ltr,
+                      //                       style: TextStyle(
+                      //                           fontSize: 13,
+                      //                           color: Colors.black,
+                      //                           fontWeight: FontWeight.w500),
+                      //                     ),
+                      //                     Spacer(),
+                      //                     Image.asset(
+                      //                       "assets/icons/phone_rounded_filled.png",
+                      //                       height: 24,
+                      //                       // color: mainColor,
+                      //                     )
+                      //                   ],
+                      //                 ),
+                      //                 // SizedBox(height: 12,),
+                      //               ],
+                      //             ),
+                      //           ),
+                      //         ),
+                      //         SizedBox(
+                      //           width: 20,
+                      //         ),
+                      //       ],
+                      //     ),
+                      //   ),
+                      // )),
                       buildSlideTransition(Padding(
                         padding: const EdgeInsets.symmetric(
                             vertical: 6.0, horizontal: 0),
@@ -579,7 +590,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                         ),
                                       ),
                                       Text(
-                                        "Marcus Stanton",
+                                        "${detailProvider.orderDetailItem?.deliveryAddress?.contactPersonName ??
+                                            'Name not available'}",
                                         style: TextStyle(
                                             fontWeight: FontWeight.w600,
                                             fontSize: 14,
@@ -591,7 +603,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                       Row(
                                         children: [
                                           Text(
-                                            "256 5416 5416",
+                                            "${detailProvider.orderDetailItem?.deliveryAddress?.contactPersonNumber ??
+                                                'Contact not available'}",
                                             textDirection: TextDirection.ltr,
                                             style: TextStyle(
                                                 fontSize: 13,
@@ -600,11 +613,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                           ),
                                           Spacer(),
                                           InkWell(
-                                            onTap: (){
-                                              Navigator.pushNamed(context, chat_screen,
-                                                  arguments: {"other_user_id": "17",
-                                                    "other_user_role": "delivery_man",
-                                                    "other_user_name": "John Doe",
+                                            onTap: () {
+                                              Navigator.pushNamed(
+                                                  context, chat_screen,
+                                                  arguments: {
+                                                    "other_user_id": "11",
+                                                    "other_user_role":
+                                                        "delivery_man",
+                                                    "other_user_name":
+                                                        "John Doe",
                                                     "order_id": "1002",
                                                   });
                                             },
@@ -660,9 +677,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           children: [
-                                            RoundedAvatar(
-                                              assetPath:
-                                                  "assets/images/mac_logo.png",
+                                            RoundedNetworkAvatar(
+                                              url: '${detailProvider.orderDetailItem?.business?.logo}',
+                                              prefix: MJ_Apis.restaurantImgPath,
+                                              // assetPath:
+                                              //     "assets/images/mac_logo.png",
                                               height: 50,
                                               width: 50,
                                             ),
@@ -682,7 +701,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                           children: [
                                             // SizedBox(height: 12,),
                                             Text(
-                                              "Lorem ipsum dolor sit amet",
+                                              "${detailProvider.orderDetailItem?.business?.name??"Store name not available"}",
                                               style: TextStyle(
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 16,
@@ -691,15 +710,18 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                             SizedBox(
                                               height: 2,
                                             ),
+                                            if(detailProvider.orderDetailItem?.business?.businessType?.type!=null)
                                             Row(
                                               children: [
-                                                Text(
-                                                  "Bakery - Coffee Shoop",
-                                                  style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: mediumGreyColor,
-                                                      fontWeight:
-                                                          FontWeight.w500),
+                                                Expanded(
+                                                  child: Text(
+                                                    "${detailProvider.orderDetailItem?.business?.businessType?.type}",
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: mediumGreyColor,
+                                                        fontWeight:
+                                                            FontWeight.w500),
+                                                  ),
                                                 ),
                                               ],
                                             ),
@@ -755,29 +777,34 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       ...List.generate(
-                                          3,
-                                          (index) => OrderDetailOneItem(
-                                                index: index > 2 ? 1 : index,
-                                              )),
+                                          (detailProvider.orderDetailItem?.details?.length??0),
+                                          (index) => Column(
+                                            children: [
+                                              OrderDetailOneItem(
+                                                    item: detailProvider.orderDetailItem?.details![index],
+                                                  ),
+                                              Divider()
+                                            ],
+                                          )),
                                       SizedBox(
                                         height: 30,
                                       ),
-                                      CheckoutAmountRow(
-                                          title: getString("cart__sub_total"),
-                                          amount: "600"),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
+                                      // CheckoutAmountRow(
+                                      //     title: getString("cart__sub_total"),
+                                      //     amount: "${detailProvider.orderDetailItem?.orderAmount}"),
+                                      // SizedBox(
+                                      //   height: 10,
+                                      // ),
                                       CheckoutAmountRow(
                                           title: getString(
                                               "cart__delivery_charges"),
-                                          amount: "30"),
+                                          amount: "${detailProvider.orderDetailItem?.deliveryCharge}"),
                                       SizedBox(
                                         height: 10,
                                       ),
                                       CheckoutAmountRow(
                                           title: getString("cart__total"),
-                                          amount: "630"),
+                                          amount: "${detailProvider.orderDetailItem?.orderAmount}"),
                                     ],
                                   ),
                                 ),
@@ -1213,97 +1240,226 @@ class OrderStatusIcon extends StatelessWidget {
 }
 
 class OrderDetailOneItem extends StatelessWidget {
-  const OrderDetailOneItem({Key? key, required this.index}) : super(key: key);
-  final int index;
-
+  OrderDetailOneItem({Key? key, required this.item}) : super(key: key);
+  // final int index;
+  Details? item;
   @override
   Widget build(BuildContext context) {
-    return Consumer<SettingsProvider>(
-        builder: (context, settingsProvider, _) {
-          return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Row(
-            children: [
-              // SizedBox(
-              //   width: 6,
-              // ),
-              Expanded(
-                  flex: 3,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        "assets/images/temp/order_item${index}.png",
-                        height: 40,
-                        fit: BoxFit.cover,
+    return Consumer<SettingsProvider>(builder: (context, settingsProvider, _) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: true ? Column(
+          children: [
+            Flex(
+              direction: Axis.horizontal,
+              children: [
+                Expanded(
+                    flex: 3,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: ImageWithPlaceholder(
+                        image: item?.foodDetails?.image,
+                        prefix: MJ_Apis.productImgPath,
+                        height: 70,
+                        fit: BoxFit.contain,
                       ),
-                    ],
-                  )),
-              SizedBox(
-                width: 4,
-              ),
-              Expanded(
-                flex: 8,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // SizedBox(height: 12,),
-                      Text(
-                        "${settingsProvider.zone?.zoneData?.first.currency_symbol} 2.99",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                            color: Colors.black),
+                    )),
+                Expanded(
+                    flex: 6,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("${settingsProvider.zone?.zoneData?.first.currency_symbol} ${item?.price} ",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              )),
+                          SizedBox(
+                            height: 6,
+                          ),
+                          Text("${item?.foodDetails?.name}",
+                              style: TextStyle(
+                                  color: Colors.black, fontWeight: FontWeight.w600, fontSize: 12)),
+                          SizedBox(
+                            height: 6,
+                          ),
+                          if(item?.variation!=null)
+                            Text("Variant: ${item?.variation?.first.type}",
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 11)),
+                        ],
                       ),
-                      SizedBox(
-                        height: 2,
-                      ),
-                      Text(
-                        "Lorem ipsum dolor sit amet  et dolore",
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w400),
-                      ),
+                    )),
+                Expanded(
+                    flex: 3,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          getString("common__qty"),
+                          style: TextStyle(color: Colors.black, fontSize: 11),
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
 
-                      // SizedBox(height: 12,),
-                    ],
-                  ),
+                            Text(
+                              '${item?.quantity}',
+                              style: TextStyle(
+                                  color: Colors.black, fontWeight: FontWeight.w600, fontSize: 14),
+                            ),
+                          ],
+                        ),
+                      ],
+                    )),
+              ],
+            ),
+            if ((item?.addOns?.length ?? 0) > 0)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0, left: 3),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        "AddOns:",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 9,
+                      child: Column(
+                        children: [
+                          ...List.generate(
+                              (item?.addOns?.length ?? 0),
+                                  (index) =>
+                                  Column(
+                                    children: [
+                                      Row(
+                                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            "${capitalizeFirstLetter(item?.addOns?[index].name??'')}:  ",
+                                            style: TextStyle(
+                                                color: Colors.black),
+                                          ),
+                                          Spacer(),
+                                          Text(
+                                            "${item?.addOns?[index].qty} x ",
+                                            style: TextStyle(
+                                                color: Colors.black),
+                                          ),
+                                          Text(
+                                            "${settingsProvider.zone?.zoneData?.first.currency_symbol} ${item?.addOns?[index]
+                                                .price}",
+                                            style: TextStyle(
+                                                color: Colors.black),
+                                          ),
+                                          if (!(item?.addOns?[index].available ??
+                                              true))
+                                            Text(
+                                              " (Unavailable)",
+                                              style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 11),
+                                            ),
+                                        ],
+                                      )
+                                    ],
+                                  ))
+                        ],
+                      ),
+                    )
+                  ],
                 ),
               ),
-              SizedBox(
-                width: 20,
+          ],
+        ) : Row(
+          children: [
+            Expanded(
+                flex: 3,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      "assets/images/temp/order_item${1}.png",
+                      height: 40,
+                      fit: BoxFit.cover,
+                    ),
+                  ],
+                )),
+            SizedBox(
+              width: 4,
+            ),
+            Expanded(
+              flex: 8,
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // SizedBox(height: 12,),
+                    Text(
+                      "${settingsProvider.zone?.zoneData?.first.currency_symbol} 2.99",
+                      style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                          color: Colors.black),
+                    ),
+                    SizedBox(
+                      height: 2,
+                    ),
+                    Text(
+                      "Lorem ipsum dolor sit amet  et dolore",
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w400),
+                    ),
+
+                    // SizedBox(height: 12,),
+                  ],
+                ),
               ),
-              Expanded(
-                  flex: 2,
-                  child: Column(
-                    children: [
-                      Text(
-                        getString("common__qty"),
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w400),
-                      ),
-                      Text(
-                        "${index}",
-                        style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w600),
-                      ),
-                    ],
-                  )),
-              SizedBox(
-                width: 20,
-              )
-            ],
-          ),
-        );
-      }
-    );
+            ),
+            SizedBox(
+              width: 20,
+            ),
+            Expanded(
+                flex: 2,
+                child: Column(
+                  children: [
+                    Text(
+                      getString("common__qty"),
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w400),
+                    ),
+                    Text(
+                      "${1}",
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                )),
+            SizedBox(
+              width: 20,
+            )
+          ],
+        ),
+      );
+    });
   }
 }
 

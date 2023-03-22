@@ -12,6 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../models/misc_models.dart';
 import '../providers/business/delivery_restaurant_provider.dart';
@@ -426,3 +428,15 @@ getParametersForStores(QueryParams? params){
       '&searched_text=${params?.searchedText ?? ""}'
       '&top_rated=${(params?.showTopRated ?? false) ? "1" : ''}"';
 }
+
+void openWhatsApp(String phone, String message) async {
+  try {
+    phone = phone.replaceAll('+', '');
+    await launchUrlString(
+    'whatsapp://send?phone=${phone}&text=${Uri.encodeFull(message)}');
+    } catch (e) {
+      print('Error Launching WhatsApp');
+    }
+
+}
+

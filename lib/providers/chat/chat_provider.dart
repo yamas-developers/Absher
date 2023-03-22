@@ -5,7 +5,7 @@
 // import 'package:absher/models/category.dart';
 // import 'package:absher/models/misc_models.dart';
 // import 'package:absher/models/restaurant.dart';
-// import 'package:absher/providers/order/order_detail.dart';
+// import 'package:absher/providers/order/order_detail_old.dart';
 // import 'package:flutter/cupertino.dart';
 // import 'package:pull_to_refresh/pull_to_refresh.dart';
 // import 'package:shared_preferences/shared_preferences.dart';

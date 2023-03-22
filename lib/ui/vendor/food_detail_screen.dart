@@ -17,7 +17,7 @@ import '../../models/cart.dart';
 import '../../models/category_product.dart';
 import '../../models/product.dart';
 import '../../models/user.dart';
-import '../../models/variations.dart';
+import '../../models/variation.dart';
 import '../../providers/other/favorite_provider.dart';
 import '../../providers/settings/settings_provider.dart';
 import '../../providers/user/user_provider.dart';
@@ -283,7 +283,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                             // for (Variations variant in )
                             ...List.generate(
                                 provider.product?.variations?.length ?? 0, (index) {
-                              Variations? variant =
+                              Variation? variant =
                                   provider.product?.variations![index];
                               bool isSelected = provider.isVariantSame(variant);
                               return Padding(

@@ -30,7 +30,7 @@ class AddOns {
     restaurantId = json['restaurant_id'].toString();
     status = json['status'].toString();
     available = json['available']??true;
-    qty = json['qty']??0;
+    qty = json['qty']??json['quantity']??0;
   }
 
   Map<String, dynamic> toJson() {

@@ -1,12 +1,12 @@
 import '../helpers/public_methods.dart';
 
-class Variations {
+class Variation {
   String? type;
   int? price;
 
-  Variations({this.type, this.price});
+  Variation({this.type, this.price});
 
-  Variations.fromJson(Map<String, dynamic> json) {
+  Variation.fromJson(Map<String, dynamic> json) {
     if(json == null)return;
     type = json['type'];
     price = convertNumber(json['price']);

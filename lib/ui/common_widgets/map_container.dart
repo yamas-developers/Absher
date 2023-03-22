@@ -32,11 +32,6 @@ class MapContainer extends StatefulWidget {
 
 class _MapContainerState extends State<MapContainer> {
   TextEditingController _searchController = TextEditingController();
-  String _streetNumber = '';
-  String _street = '';
-  String _city = '';
-  String _zipCode = '';
-  String _id = '';
 
   static const CameraPosition _cameraPosition =
       CameraPosition(target: LatLng(30.427, 71.085), zoom: 12);
