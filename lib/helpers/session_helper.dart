@@ -43,7 +43,7 @@ Future<String?> getSession() async {
     if (data == null || data.isEmpty) {
       return null;
     }
-    log("success User In SESSION HELPER:");
+    log("success User In SESSION HELPER: $data");
     return data;
   } catch (e) {
     return null;

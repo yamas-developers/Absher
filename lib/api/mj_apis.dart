@@ -38,6 +38,7 @@ class MJ_Apis{
   static const update_profile = "customer/update-profile"; //post request
   static const place_order = "customer/order/place"; //post request
   static const pending_order_list = "customer/order/running-orders"; //get request
+  static const completed_order_list = "customer/order/completed-orders"; //get request
   static const order_details = "customer/order/details"; //get request
 
   //////////

@@ -298,7 +298,7 @@ class BottomCartWidget extends StatelessWidget {
       return Consumer<CartProvider>(builder: (context, cartProvider, _) {
         return GestureDetector(
           onTap: () {
-            Navigator.pushNamed(context, cart_screen);
+            Navigator.pushReplacementNamed(context, cart_screen);
           },
           child: Container(
               width: getWidth(context) * 0.94,

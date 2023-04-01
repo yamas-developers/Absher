@@ -5,6 +5,7 @@ import 'package:absher/models/variation.dart';
 import 'addons.dart';
 import 'category_ids.dart';
 import 'choice_options.dart';
+import 'delivery_man.dart';
 import 'restaurant.dart';
 
 class OrderDetail {
@@ -54,6 +55,7 @@ class OrderDetail {
   String? freeDeliveryBy;
   List<Details>? details;
   Business? business;
+  DeliveryMan? deliveryMan;
 
   OrderDetail(
       {this.id,
@@ -100,7 +102,7 @@ class OrderDetail {
         this.dmTips,
         this.processingTime,
         this.freeDeliveryBy,
-        this.details,this.business});
+        this.details,this.business,this.deliveryMan});
 
   OrderDetail.fromJson(Map<String, dynamic> json) {
     id = json['id'].toString();
@@ -114,7 +116,7 @@ class OrderDetail {
     paymentMethod = json['payment_method'];
     transactionReference = json['transaction_reference'];
     deliveryAddressId = json['delivery_address_id'];
-    deliveryManId = json['delivery_man_id'];
+    deliveryManId = json['delivery_man_id'].toString();
     couponCode = json['coupon_code'];
     orderNote = json['order_note'];
     orderType = json['order_type'];
@@ -157,6 +159,10 @@ class OrderDetail {
     }
     business = json['restaurant'] != null
         ? Business.fromJson(json['restaurant'])
+        : null;
+    log('MK: delivery man ${json['delivery_man']}');
+    deliveryMan = json['delivery_man'] != null
+        ? DeliveryMan.fromJson(json['delivery_man'])
         : null;
   }
 
@@ -213,6 +219,9 @@ class OrderDetail {
     }
     if (this.business != null) {
       data['restaurant'] = this.business?.toJson();
+    }
+    if (this.deliveryMan != null) {
+      data['delivery_man'] = this.deliveryMan?.toJson();
     }
     return data;
   }
@@ -312,7 +321,7 @@ class Details {
     foodDetails = json['food_details'] != null
         ? new FoodDetails.fromJson(json['food_details'])
         : null;
-    if (json['variation'] != null && json['variation'].length > 1 && json['variation'][0]!="") {
+    if (json['variation'] != null && json['variation'].length > 0 && json['variation'][0]!="") {
       variation = [];
       json['variation'].forEach((v) {
         variation?.add(Variation.fromJson(v));

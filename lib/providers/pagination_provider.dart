@@ -39,24 +39,19 @@ class PaginationProvider<T> with ChangeNotifier{
     notifyListeners();
   }
 
-  c_reset(bool empty_list){
+  c_reset({bool flag = true}){
     c_offset = 1;
     c_total_size = 1000;
     c_loading = false;
-    if(empty_list)
-    c_list = [];
+    if(flag)
+    c_list.clear();
     c_refreshController.loadComplete();
     notifyListeners();
   }
-  c_getData(bool empty_list){ //////empty list should be true for first call
+  c_getData(bool callingForMore){ //////empty list should be true for first call
     log("MJ: offset is $c_offset and total_size is $c_total_size");
-    if(c_offset==1) { ////first time
-      if(empty_list)
-      c_list.clear();
-    }else{ ////called for more data
-    }
-    // notifyListeners();
-    log("MJ: length is ${c_list.length}");
+    if (!callingForMore) c_reset(flag: false);
+
       c_refreshController.footerMode?.value = LoadStatus.loading;
 
     if (c_offset > c_total_size) {
@@ -67,8 +62,8 @@ class PaginationProvider<T> with ChangeNotifier{
     notifyListeners();
     return true;
   }
-  c_getDataSecond(list, bool empty_list){
-    if(empty_list)
+  c_getDataSecond(list, bool callingForMore){
+    if(callingForMore)
     c_list.addAll(list);
     else {
     c_list = list ;

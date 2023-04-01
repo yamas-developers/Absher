@@ -794,7 +794,7 @@ class _RestaurantAreaState extends State<RestaurantArea> {
      try{
        // QueryParams params = Provider.of<RestaurantProvider>(context).params;
        log("MJ: in init state: ");
-       await widget.resProvider.reset(params: widget.params);
+       await widget.resProvider.getData(params: widget.params, callingForMore: false);
        initialized = true;
      }catch(e){
        log("error in initstate: $e");
@@ -840,7 +840,7 @@ class _RestaurantAreaState extends State<RestaurantArea> {
               if(!controller.isRefresh && initialized == true)
                 // await widget.resProvider.reset();
               // else
-              await widget.resProvider.getData(/*empty_list: false*/);
+              await widget.resProvider.getData();
             },
             onRefresh: () async {
               log("MJ: loading in refresh ${controller.isRefresh}");

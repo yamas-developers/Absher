@@ -18,6 +18,7 @@ import 'business/service_provider.dart';
 import 'business/store_detail_provider.dart';
 import 'business/takeaway_restaurant_provider.dart';
 import 'location/location_provider.dart';
+import 'order/past_orders_provider.dart';
 import 'order/pending_orders_provider.dart';
 import 'other/favorite_provider.dart';
 import 'other/search_business_provider.dart';
@@ -67,6 +68,8 @@ List<SingleChildWidget> independentProviders = [
       create: (_) => ExpressProvider(),),
   ChangeNotifierProvider<PendingOrdersProvider>(
       create: (_) => PendingOrdersProvider(),),
+  ChangeNotifierProvider<PastOrdersProvider>(
+      create: (_) => PastOrdersProvider(),),
   ChangeNotifierProvider<OrderDetailProvider>(
       create: (_) => OrderDetailProvider(),),
 ];

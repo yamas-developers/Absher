@@ -96,8 +96,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             ),
                             GestureDetector(
                               onTap: () async {
-                                await provider.reset(
-                                    empty_list: true, name: _controller.text);
+                                await provider.reset(name: _controller.text);
                               },
                               child: Image.asset(
                                 "assets/icons/search_icon.png",

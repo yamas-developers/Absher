@@ -12,7 +12,7 @@ import '../../helpers/public_methods.dart';
 import '../../models/order.dart';
 import '../pagination_provider.dart';
 
-class PendingOrdersProvider extends PaginationProvider<Order>{
+class PastOrdersProvider extends PaginationProvider<Order>{
   reset() async {
     c_reset();
     return getData(callingForMore: false); //////////or -> return await getData();
@@ -20,7 +20,7 @@ class PendingOrdersProvider extends PaginationProvider<Order>{
   getData({bool callingForMore = true}) async {
     bool flag = c_getData(callingForMore);
     if(flag){
-    dynamic response = await MjApiService().getRequest(MJ_Apis.pending_order_list+
+    dynamic response = await MjApiService().getRequest(MJ_Apis.completed_order_list+
         "?offset=${c_offset}&limit=${c_limit}");
 
     c_refreshController.footerMode!.value = LoadStatus.idle;

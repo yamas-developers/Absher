@@ -13,14 +13,14 @@ import '../../models/service.dart';
 import '../pagination_provider.dart';
 
 class ServiceProvider extends PaginationProvider<AbsherService>{
-  reset({bool empty_list = false}) async {
-    c_reset(empty_list);
-    return getData(empty_list: empty_list); //////////or -> return await getData();
+  reset() async {
+    c_reset();
+    return getData(); //////////or -> return await getData();
   }
-  getData({bool empty_list = true}) async {
+  getData({bool callingForMore = true}) async {
 
 
-    bool flag = c_getData(empty_list);
+    bool flag = c_getData(callingForMore);
     if(flag){
 
       try{
@@ -36,7 +36,7 @@ class ServiceProvider extends PaginationProvider<AbsherService>{
             tempList.add(AbsherService.fromJson(response['response']["services"][i]));
           }
           log("calling get data in service provider: ");
-          c_getDataSecond(tempList, empty_list);
+          c_getDataSecond(tempList, callingForMore);
         }
       }catch(e){
         log("error in service provider: ${e}");

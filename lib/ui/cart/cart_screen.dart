@@ -378,13 +378,13 @@ class _CartScreenState extends State<CartScreen> {
                                           String business_type = business
                                               .businessType?.id ?? "0";
                                           if (business_type == BUSINESS_TYPE_STORE)
-                                            Navigator.pushNamed(
+                                            Navigator.pushReplacementNamed(
                                                 context, grocery_store_screen,
                                                 arguments: {
                                                   "store": business,
                                                 });
                                           else
-                                            Navigator.pushNamed(
+                                            Navigator.pushReplacementNamed(
                                                 context, restaurant_detail_screen,
                                                 arguments: {
                                                   "store": business,

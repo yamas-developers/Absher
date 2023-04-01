@@ -60,10 +60,10 @@ class _ChatScreenState extends State<ChatScreen> {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
         //
         String? userId = context.read<UserProvider>().currentUser?.id;
-        log("MK: userId $userId");
         if (userId != null && orderId != null) {
           setState(() {
-            chat_id = '$userId$orderId$otherUserId';
+            chat_id = '$otherUserId$orderId$userId';
+        log("MK: chatId $chat_id");
           });
         }
       });

@@ -5,6 +5,7 @@ import 'package:absher/models/order_detail.dart';
 import 'package:absher/ui/common_widgets/rounded_center_button.dart';
 import 'package:absher/ui/common_widgets/touchable_opacity.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../helpers/constants.dart';
@@ -15,6 +16,7 @@ import '../../providers/settings/settings_provider.dart';
 import '../common_widgets/avatar.dart';
 import '../common_widgets/checkout_amount_row.dart';
 import '../common_widgets/language_aware_widgets.dart';
+import '../common_widgets/map_widget.dart';
 import '../common_widgets/misc_widgets.dart';
 
 class OrderDetailScreen extends StatefulWidget {
@@ -54,8 +56,19 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
   getPageData() async {
     OrderDetailProvider provider = context.read<OrderDetailProvider>();
-    actualStatus =
-        provider.orderItem?.orderStatus == "pending" ? 1 : actualStatus;
+    // actualStatus =
+    //     provider.orderItem?.orderStatus == "pending" ? 1 : actualStatus;
+    if (provider.orderItem?.orderStatus == "pending") {
+      actualStatus = 1;
+    } else if (provider.orderItem?.orderStatus == "rider_accepted") {
+      actualStatus = 1;
+    } else if (provider.orderItem?.orderStatus == "arrived_at_vendor") {
+      actualStatus = 2;
+    } else if (provider.orderItem?.orderStatus == "picked_up") {
+      actualStatus = 3;
+    } else if (provider.orderItem?.orderStatus == "delivered") {
+      actualStatus = 4;
+    }
     for (int i = 0; i <= actualStatus; i++) {
       await Future.delayed(Duration(milliseconds: 300));
       setState(() {
@@ -159,7 +172,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                           children: [
                             Flexible(
                                 child: Text(
-                              "${capitalizeFirstLetter(detailProvider.orderItem?.orderStatus ?? "N/A")}",
+                              "${splitAndCapitalize(detailProvider.orderItem?.orderStatus) ?? "N/A"}",
                               style: TextStyle(
                                   fontSize: 18,
                                   color: mainColor,
@@ -174,14 +187,38 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 SizedBox(
                   height: 46,
                 ),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(25),
-                  child: Image.asset(
-                    getAssetPath(actualStatus),
+                if (orderStatus == 3)
+                  Container(
                     height: 210,
-                    fit: BoxFit.contain,
+                    margin: EdgeInsets.all(0),
+                    decoration: BoxDecoration(boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        spreadRadius: 3,
+                        blurRadius: 4,
+                      )
+                    ]),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: MapWidget(
+                        riderLocation: LatLng(
+                            convertDouble(detailProvider
+                                .orderItem?.deliveryMan?.currentLat),
+                            convertDouble(detailProvider
+                                .orderItem?.deliveryMan?.currentLng)),
+                        key: UniqueKey(),
+                      ),
+                    ),
+                  )
+                else
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(25),
+                    child: Image.asset(
+                      getAssetPath(actualStatus),
+                      height: 210,
+                      fit: BoxFit.contain,
+                    ),
                   ),
-                ),
                 Row(
                   mainAxisAlignment: actualStatus != 1
                       ? MainAxisAlignment.spaceBetween
@@ -397,8 +434,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                         height: 2,
                                       ),
                                       Text(
-                                        "${detailProvider.orderDetailItem?.deliveryAddress?.address ??
-                                            'Address not available'}",
+                                        "${detailProvider.orderDetailItem?.deliveryAddress?.address ?? 'Address not available'}",
                                         maxLines: 3,
                                         textDirection: TextDirection.ltr,
                                         textAlign: getTextAlignStart(context),
@@ -590,8 +626,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                         ),
                                       ),
                                       Text(
-                                        "${detailProvider.orderDetailItem?.deliveryAddress?.contactPersonName ??
-                                            'Name not available'}",
+                                        "${detailProvider.orderDetailItem?.deliveryMan?.fName} ${detailProvider.orderDetailItem?.deliveryMan?.lName}",
                                         style: TextStyle(
                                             fontWeight: FontWeight.w600,
                                             fontSize: 14,
@@ -602,14 +637,21 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                       ),
                                       Row(
                                         children: [
-                                          Text(
-                                            "${detailProvider.orderDetailItem?.deliveryAddress?.contactPersonNumber ??
-                                                'Contact not available'}",
-                                            textDirection: TextDirection.ltr,
-                                            style: TextStyle(
-                                                fontSize: 13,
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.w500),
+                                          TouchableOpacity(
+                                            onTap: () {
+                                              makePhoneCall(detailProvider
+                                                  .orderDetailItem
+                                                  ?.deliveryMan
+                                                  ?.phone);
+                                            },
+                                            child: Text(
+                                              "${detailProvider.orderDetailItem?.deliveryMan?.phone ?? 'Contact not available'}",
+                                              textDirection: TextDirection.ltr,
+                                              style: TextStyle(
+                                                  fontSize: 13,
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.w500),
+                                            ),
                                           ),
                                           Spacer(),
                                           InkWell(
@@ -617,18 +659,19 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                               Navigator.pushNamed(
                                                   context, chat_screen,
                                                   arguments: {
-                                                    "other_user_id": "11",
+                                                    "other_user_id":
+                                                        "${detailProvider.orderDetailItem?.deliveryMan?.id}",
                                                     "other_user_role":
                                                         "delivery_man",
                                                     "other_user_name":
-                                                        "John Doe",
-                                                    "order_id": "1002",
+                                                        "${detailProvider.orderDetailItem?.deliveryMan?.fName} ${detailProvider.orderDetailItem?.deliveryMan?.lName}",
+                                                    "order_id":
+                                                        "${detailProvider.orderDetailItem?.id}",
                                                   });
                                             },
-                                            child: Image.asset(
-                                              "assets/icons/phone_rounded_filled.png",
-                                              height: 24,
-                                              // color: mainColor,
+                                            child: Icon(
+                                              Icons.chat,
+                                              color: mainColorLight,
                                             ),
                                           )
                                         ],
@@ -678,7 +721,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                               MainAxisAlignment.center,
                                           children: [
                                             RoundedNetworkAvatar(
-                                              url: '${detailProvider.orderDetailItem?.business?.logo}',
+                                              url:
+                                                  '${detailProvider.orderDetailItem?.business?.logo}',
                                               prefix: MJ_Apis.restaurantImgPath,
                                               // assetPath:
                                               //     "assets/images/mac_logo.png",
@@ -701,7 +745,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                           children: [
                                             // SizedBox(height: 12,),
                                             Text(
-                                              "${detailProvider.orderDetailItem?.business?.name??"Store name not available"}",
+                                              "${detailProvider.orderDetailItem?.business?.name ?? "Store name not available"}",
                                               style: TextStyle(
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 16,
@@ -710,21 +754,27 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                             SizedBox(
                                               height: 2,
                                             ),
-                                            if(detailProvider.orderDetailItem?.business?.businessType?.type!=null)
-                                            Row(
-                                              children: [
-                                                Expanded(
-                                                  child: Text(
-                                                    "${detailProvider.orderDetailItem?.business?.businessType?.type}",
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: mediumGreyColor,
-                                                        fontWeight:
-                                                            FontWeight.w500),
+                                            if (detailProvider
+                                                    .orderDetailItem
+                                                    ?.business
+                                                    ?.businessType
+                                                    ?.type !=
+                                                null)
+                                              Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      "${detailProvider.orderDetailItem?.business?.businessType?.type}",
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              mediumGreyColor,
+                                                          fontWeight:
+                                                              FontWeight.w500),
+                                                    ),
                                                   ),
-                                                ),
-                                              ],
-                                            ),
+                                                ],
+                                              ),
 
                                             // SizedBox(height: 12,),
                                           ],
@@ -732,10 +782,18 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                       ),
                                     ),
                                     Expanded(
-                                      child: Image.asset(
-                                        "assets/icons/phone_rounded_filled.png",
-                                        height: 24,
-                                        // color: mainColor,
+                                      child: TouchableOpacity(
+                                        onTap: () {
+                                          makePhoneCall(detailProvider
+                                              .orderDetailItem
+                                              ?.business
+                                              ?.phone);
+                                        },
+                                        child: Image.asset(
+                                          "assets/icons/phone_rounded_filled.png",
+                                          height: 24,
+                                          // color: mainColor,
+                                        ),
                                       ),
                                     ),
                                     SizedBox(
@@ -777,15 +835,19 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       ...List.generate(
-                                          (detailProvider.orderDetailItem?.details?.length??0),
+                                          (detailProvider.orderDetailItem
+                                                  ?.details?.length ??
+                                              0),
                                           (index) => Column(
-                                            children: [
-                                              OrderDetailOneItem(
-                                                    item: detailProvider.orderDetailItem?.details![index],
+                                                children: [
+                                                  OrderDetailOneItem(
+                                                    item: detailProvider
+                                                        .orderDetailItem
+                                                        ?.details![index],
                                                   ),
-                                              Divider()
-                                            ],
-                                          )),
+                                                  Divider()
+                                                ],
+                                              )),
                                       SizedBox(
                                         height: 30,
                                       ),
@@ -798,13 +860,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                       CheckoutAmountRow(
                                           title: getString(
                                               "cart__delivery_charges"),
-                                          amount: "${detailProvider.orderDetailItem?.deliveryCharge}"),
+                                          amount:
+                                              "${detailProvider.orderDetailItem?.deliveryCharge}"),
                                       SizedBox(
                                         height: 10,
                                       ),
                                       CheckoutAmountRow(
                                           title: getString("cart__total"),
-                                          amount: "${detailProvider.orderDetailItem?.orderAmount}"),
+                                          amount:
+                                              "${detailProvider.orderDetailItem?.orderAmount}"),
                                     ],
                                   ),
                                 ),
@@ -1241,223 +1305,232 @@ class OrderStatusIcon extends StatelessWidget {
 
 class OrderDetailOneItem extends StatelessWidget {
   OrderDetailOneItem({Key? key, required this.item}) : super(key: key);
+
   // final int index;
   Details? item;
+
   @override
   Widget build(BuildContext context) {
     return Consumer<SettingsProvider>(builder: (context, settingsProvider, _) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: true ? Column(
-          children: [
-            Flex(
-              direction: Axis.horizontal,
-              children: [
-                Expanded(
-                    flex: 3,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: ImageWithPlaceholder(
-                        image: item?.foodDetails?.image,
-                        prefix: MJ_Apis.productImgPath,
-                        height: 70,
-                        fit: BoxFit.contain,
+        child: true
+            ? Column(
+                children: [
+                  Flex(
+                    direction: Axis.horizontal,
+                    children: [
+                      Expanded(
+                          flex: 3,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: ImageWithPlaceholder(
+                              image: item?.foodDetails?.image,
+                              prefix: MJ_Apis.productImgPath,
+                              height: 70,
+                              fit: BoxFit.contain,
+                            ),
+                          )),
+                      Expanded(
+                          flex: 6,
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                    "${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol} ${item?.price ?? 'N/A'} ",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    )),
+                                SizedBox(
+                                  height: 6,
+                                ),
+                                Text("${item?.foodDetails?.name}",
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 12)),
+                                SizedBox(
+                                  height: 6,
+                                ),
+                                if (item?.variation != null)
+                                  Text(
+                                      "Variant: ${item?.variation?.first.type}",
+                                      style: TextStyle(
+                                          color: Colors.black, fontSize: 11)),
+                              ],
+                            ),
+                          )),
+                      Expanded(
+                          flex: 3,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                getString("common__qty"),
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 11),
+                              ),
+                              SizedBox(
+                                height: 8,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    '${item?.quantity}',
+                                    style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          )),
+                    ],
+                  ),
+                  if ((item?.addOns?.length ?? 0) > 0)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0, left: 3),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: Text(
+                              "AddOns:",
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 9,
+                            child: Column(
+                              children: [
+                                ...List.generate(
+                                    (item?.addOns?.length ?? 0),
+                                    (index) => Column(
+                                          children: [
+                                            Row(
+                                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Text(
+                                                  "${capitalizeFirstLetter(item?.addOns?[index].name ?? '')}:  ",
+                                                  style: TextStyle(
+                                                      color: Colors.black),
+                                                ),
+                                                Spacer(),
+                                                Text(
+                                                  "${item?.addOns?[index].qty} x ",
+                                                  style: TextStyle(
+                                                      color: Colors.black),
+                                                ),
+                                                Text(
+                                                  "${settingsProvider.zone?.zoneData?.first.currency_symbol} ${item?.addOns?[index].price}",
+                                                  style: TextStyle(
+                                                      color: Colors.black),
+                                                ),
+                                                if (!(item?.addOns?[index]
+                                                        .available ??
+                                                    true))
+                                                  Text(
+                                                    " (Unavailable)",
+                                                    style: TextStyle(
+                                                        color: Colors.black,
+                                                        fontSize: 11),
+                                                  ),
+                                              ],
+                                            )
+                                          ],
+                                        ))
+                              ],
+                            ),
+                          )
+                        ],
                       ),
-                    )),
-                Expanded(
-                    flex: 6,
+                    ),
+                ],
+              )
+            : Row(
+                children: [
+                  Expanded(
+                      flex: 3,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            "assets/images/temp/order_item${1}.png",
+                            height: 40,
+                            fit: BoxFit.cover,
+                          ),
+                        ],
+                      )),
+                  SizedBox(
+                    width: 4,
+                  ),
+                  Expanded(
+                    flex: 8,
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 4.0, vertical: 4),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("${settingsProvider.zone?.zoneData?.first.currency_symbol} ${item?.price} ",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 14,
+                          // SizedBox(height: 12,),
+                          Text(
+                            "${settingsProvider.zone?.zoneData?.first.currency_symbol} 2.99",
+                            style: TextStyle(
                                 fontWeight: FontWeight.w600,
-                              )),
-                          SizedBox(
-                            height: 6,
+                                fontSize: 14,
+                                color: Colors.black),
                           ),
-                          Text("${item?.foodDetails?.name}",
-                              style: TextStyle(
-                                  color: Colors.black, fontWeight: FontWeight.w600, fontSize: 12)),
                           SizedBox(
-                            height: 6,
+                            height: 2,
                           ),
-                          if(item?.variation!=null)
-                            Text("Variant: ${item?.variation?.first.type}",
-                                style: TextStyle(
-                                    color: Colors.black, fontSize: 11)),
+                          Text(
+                            "Lorem ipsum dolor sit amet  et dolore",
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w400),
+                          ),
+
+                          // SizedBox(height: 12,),
                         ],
                       ),
-                    )),
-                Expanded(
-                    flex: 3,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          getString("common__qty"),
-                          style: TextStyle(color: Colors.black, fontSize: 11),
-                        ),
-                        SizedBox(
-                          height: 8,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-
-                            Text(
-                              '${item?.quantity}',
-                              style: TextStyle(
-                                  color: Colors.black, fontWeight: FontWeight.w600, fontSize: 14),
-                            ),
-                          ],
-                        ),
-                      ],
-                    )),
-              ],
-            ),
-            if ((item?.addOns?.length ?? 0) > 0)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0, left: 3),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: Text(
-                        "AddOns:",
-                        style: TextStyle(color: Colors.black),
-                      ),
                     ),
-                    Expanded(
-                      flex: 9,
+                  ),
+                  SizedBox(
+                    width: 20,
+                  ),
+                  Expanded(
+                      flex: 2,
                       child: Column(
                         children: [
-                          ...List.generate(
-                              (item?.addOns?.length ?? 0),
-                                  (index) =>
-                                  Column(
-                                    children: [
-                                      Row(
-                                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            "${capitalizeFirstLetter(item?.addOns?[index].name??'')}:  ",
-                                            style: TextStyle(
-                                                color: Colors.black),
-                                          ),
-                                          Spacer(),
-                                          Text(
-                                            "${item?.addOns?[index].qty} x ",
-                                            style: TextStyle(
-                                                color: Colors.black),
-                                          ),
-                                          Text(
-                                            "${settingsProvider.zone?.zoneData?.first.currency_symbol} ${item?.addOns?[index]
-                                                .price}",
-                                            style: TextStyle(
-                                                color: Colors.black),
-                                          ),
-                                          if (!(item?.addOns?[index].available ??
-                                              true))
-                                            Text(
-                                              " (Unavailable)",
-                                              style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 11),
-                                            ),
-                                        ],
-                                      )
-                                    ],
-                                  ))
+                          Text(
+                            getString("common__qty"),
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w400),
+                          ),
+                          Text(
+                            "${1}",
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w600),
+                          ),
                         ],
-                      ),
-                    )
-                  ],
-                ),
+                      )),
+                  SizedBox(
+                    width: 20,
+                  )
+                ],
               ),
-          ],
-        ) : Row(
-          children: [
-            Expanded(
-                flex: 3,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image.asset(
-                      "assets/images/temp/order_item${1}.png",
-                      height: 40,
-                      fit: BoxFit.cover,
-                    ),
-                  ],
-                )),
-            SizedBox(
-              width: 4,
-            ),
-            Expanded(
-              flex: 8,
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // SizedBox(height: 12,),
-                    Text(
-                      "${settingsProvider.zone?.zoneData?.first.currency_symbol} 2.99",
-                      style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          color: Colors.black),
-                    ),
-                    SizedBox(
-                      height: 2,
-                    ),
-                    Text(
-                      "Lorem ipsum dolor sit amet  et dolore",
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w400),
-                    ),
-
-                    // SizedBox(height: 12,),
-                  ],
-                ),
-              ),
-            ),
-            SizedBox(
-              width: 20,
-            ),
-            Expanded(
-                flex: 2,
-                child: Column(
-                  children: [
-                    Text(
-                      getString("common__qty"),
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w400),
-                    ),
-                    Text(
-                      "${1}",
-                      style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                )),
-            SizedBox(
-              width: 20,
-            )
-          ],
-        ),
       );
     });
   }

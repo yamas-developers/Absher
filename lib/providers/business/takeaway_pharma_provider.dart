@@ -13,13 +13,13 @@ import '../../models/misc_models.dart';
 import '../pagination_provider.dart';
 
 class TakeawayPharmaProvider extends PaginationProvider<Business>{
-  reset({bool empty_list = false, QueryParams? params = null}) async {
-    c_reset(empty_list);
-    return getData(empty_list: empty_list,
+  reset({QueryParams? params = null}) async {
+    c_reset();
+    return getData(
         params: params); //////////or -> return await getData();
   }
-  getData({bool empty_list = true, QueryParams? params = null}) async {
-    bool flag = c_getData(empty_list);
+  getData({bool callingForMore = true, QueryParams? params = null}) async {
+    bool flag = c_getData(callingForMore);
     if(flag){
     dynamic response = await MjApiService().getRequest(MJ_Apis.get_all_restaurants+
         "?business_type=${BUSINESS_TYPE_PHARMACY}&offset=${c_offset}"
@@ -32,7 +32,7 @@ class TakeawayPharmaProvider extends PaginationProvider<Business>{
       for (int i = 0; i < response['response']["restaurants"].length; i++) {
         tempList.add(Business.fromJson(response['response']["restaurants"][i]));
       }
-      c_getDataSecond(tempList, empty_list);
+      c_getDataSecond(tempList, callingForMore);
     }
     }
 

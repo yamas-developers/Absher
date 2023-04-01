@@ -256,7 +256,7 @@ class _ChecoutScreenState extends State<ChecoutScreen> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(12),
                               child: MapWidget(
-                                  markerLocation: locProvider.currentLocation,key: UniqueKey(),),
+                                  customerLocation: locProvider.currentLocation,key: UniqueKey(),),
                             ),
                           ),
                           // Image.asset(

@@ -13,6 +13,7 @@ import '../../helpers/constants.dart';
 import '../../helpers/public_methods.dart';
 import '../../models/order.dart';
 import '../../providers/order/order_detail_provider.dart';
+import '../../providers/order/past_orders_provider.dart';
 import '../../providers/order/pending_orders_provider.dart';
 import '../../providers/settings/settings_provider.dart';
 import '../common_widgets/language_aware_widgets.dart';
@@ -213,6 +214,7 @@ class _OrderScreenState extends State<OrderScreen>
                   ),
                 ),
               ),
+              SizedBox(height: 4,),
               Expanded(
                 // height: getHeight(context),
                 child: TabBarView(controller: tabController, children: [
@@ -223,25 +225,13 @@ class _OrderScreenState extends State<OrderScreen>
                       isPending: true,
                     );
                   }),
-                  Padding(
-                    padding:
-                        const EdgeInsets.only(left: 12, top: 18, right: 12),
-                    child: ListView(
-                      children: [
-                        ...List.generate(5, (index) {
-                          if (index == 0) animationDuration = 0;
-                          return BuildSlideTransition(
-                            child: OrderItem(
-                              orderData: Order(),
-                            ),
-                            animationDuration: animationDuration += 300,
-                            curve: Curves.easeInBack,
-                            startPos: -1.0,
-                          );
-                        })
-                      ],
-                    ),
-                  ),
+                  Consumer<PastOrdersProvider>(
+                      builder: (context, pastOrdersProvider, _) {
+                        return OrdersArea(
+                          orderProvider: pastOrdersProvider,
+                          isPending: true,
+                        );
+                      }),
                 ]),
               ),
               // SizedBox(
@@ -250,29 +240,6 @@ class _OrderScreenState extends State<OrderScreen>
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class OrderArea extends StatelessWidget {
-  const OrderArea({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 12, top: 18, right: 12),
-      child: ListView(
-        children: [
-          ...List.generate(1, (index) {
-            // if (index == 0) animationDuration = 0;
-            return OrderItem(
-              orderData: Order(),
-            );
-          })
-        ],
       ),
     );
   }

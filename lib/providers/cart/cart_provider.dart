@@ -150,7 +150,7 @@ class CartProvider extends DBHelper<Cart> with ChangeNotifier, MjApiService {
 
   Future<bool> clearCart() async {
     var data = await deleteAll();
-    _currentStoreId = "";
+    _currentStoreId = "0";
     _currentStore = null;
     await getCartData();
     return data != null;

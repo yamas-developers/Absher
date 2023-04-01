@@ -173,6 +173,8 @@ class MjApiService {
       // print(hashMap);
       log('myHashmapStatus: ${hashMap}');
       if (hashMap['status_code'] == 1) {
+
+
         // String decData = await decryptString(hashMap['response']);
         Map<String, dynamic> decData = hashMap['response'];
         // print('data is in if: ${decData}');
@@ -187,7 +189,7 @@ class MjApiService {
       showToast(hashMap['message']);
       return null;
     } catch (e) {
-      print(e.toString());
+      log('error in getRequest $e');
       return null;
     } finally {
       client.close();

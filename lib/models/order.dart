@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:absher/models/restaurant.dart';
 
 import 'delivery_address.dart';
+import 'delivery_man.dart';
 
 class Order {
   String? id;
@@ -49,7 +52,7 @@ class Order {
   String? freeDeliveryBy;
   int? detailsCount;
   Business? restaurant;
-  String? deliveryMan;
+  DeliveryMan? deliveryMan;
 
   Order(
       {this.id,
@@ -115,6 +118,7 @@ class Order {
     deliveryManId = json['delivery_man_id'].toString();
     couponCode = json['coupon_code'];
     orderNote = json['order_note'];
+
     orderType = json['order_type'];
     checked = json['checked'];
     restaurantId = json['restaurant_id'].toString();
@@ -129,6 +133,7 @@ class Order {
     confirmed = json['confirmed'];
     processing = json['processing'];
     handover = json['handover'];
+
     pickedUp = json['picked_up'];
     delivered = json['delivered'];
     canceled = json['canceled'];
@@ -145,13 +150,17 @@ class Order {
     edited = json['edited'];
     zoneId = json['zone_id'].toString();
     dmTips = json['dm_tips'];
+
     processingTime = json['processing_time'];
     freeDeliveryBy = json['free_delivery_by'];
     detailsCount = json['details_count'];
     restaurant = json['restaurant'] != null
         ? Business.fromJson(json['restaurant'])
         : null;
-    deliveryMan = json['delivery_man'];
+
+    deliveryMan = json['delivery_man'] != null
+        ? DeliveryMan.fromJson(json['delivery_man'])
+        : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -206,7 +215,9 @@ class Order {
     if (this.restaurant != null) {
       data['restaurant'] = this.restaurant?.toJson();
     }
-    data['delivery_man'] = this.deliveryMan;
+    if (this.deliveryMan != null) {
+    data['delivery_man'] = this.deliveryMan?.toJson();
+    }
     return data;
   }
 }

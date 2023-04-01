@@ -27,20 +27,19 @@ class SearchBusinessProvider extends PaginationProvider<Business> {
     notifyListeners();
   }
 
-  reset({bool empty_list = false, name = ""}) async {
-    c_reset(empty_list);
+  reset({name = ""}) async {
+    c_reset();
     return getData(
-        empty_list: empty_list,
         name: name); //////////or -> return await getData();
   }
 
-  getData({bool empty_list = true, name = ""}) async {
+  getData({bool callingForMore = true, name = ""}) async {
     _searchedString = name??"";
     if (name == "" || name == null) {
       // reset();
       return;
     }
-    bool flag = c_getData(empty_list);
+    bool flag = c_getData(callingForMore);
     if (flag) {
       dynamic response = await MjApiService().getRequest(MJ_Apis
               .get_searched_businees +
@@ -53,7 +52,7 @@ class SearchBusinessProvider extends PaginationProvider<Business> {
           tempList
               .add(Business.fromJson(response['response']["restaurants"][i]));
         }
-        c_getDataSecond(tempList, empty_list);
+        c_getDataSecond(tempList, callingForMore);
       }
     }
   }

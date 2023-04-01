@@ -13,7 +13,7 @@ class User {
   String? socialId;
   String? zoneId;
   String? refCode;
-  String? userinfo;
+  // String? userinfo;
   int? isPhoneVerified;
   int? walletBalance;
   int? loyaltyPoint;
@@ -41,7 +41,7 @@ class User {
         this.walletBalance,
         this.loyaltyPoint,
         this.refCode,
-        this.userinfo,
+        // this.userinfo,
         this.memberSinceDays});
 
   User.fromJson(Map<String, dynamic> json) {
@@ -64,7 +64,7 @@ class User {
     walletBalance = json['wallet_balance'];
     loyaltyPoint = json['loyalty_point'];
     refCode = json['ref_code'];
-    userinfo = json['userinfo'];
+    // userinfo = json['userinfo'];
     memberSinceDays = json['member_since_days'];
   }
 
@@ -89,7 +89,7 @@ class User {
     data['wallet_balance'] = this.walletBalance;
     data['loyalty_point'] = this.loyaltyPoint;
     data['ref_code'] = this.refCode;
-    data['userinfo'] = this.userinfo;
+    // data['userinfo'] = this.userinfo;
     data['member_since_days'] = this.memberSinceDays;
     return data;
   }

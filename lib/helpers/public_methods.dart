@@ -439,4 +439,31 @@ void openWhatsApp(String phone, String message) async {
     }
 
 }
+splitAndCapitalize(String? val){
+  if(val == null)return '';
+  // String valString = val.replaceAll("_", " ");
+  String valString = val.split("_").map((word) => word[0].toUpperCase() + word.substring(1)).join(" ");
+  return valString;
+}
+
+void makePhoneCall(String? phoneNumber) async {
+  if(phoneNumber == null){
+    showToast('Contact details not found');
+  }
+  final telPrefix = 'tel:';
+  if (await canLaunch('$telPrefix$phoneNumber')) {
+    await launch('$telPrefix$phoneNumber');
+  } else {
+    showToast('Could not launch $phoneNumber');
+  }
+}
+
+void openGoogleMapsDirections(double latitude, double longitude) async {
+  final String googleMapsUrl = 'https://www.google.com/maps/dir/?api=1&destination=$latitude,$longitude';
+  if (await canLaunch(googleMapsUrl)) {
+    await launch(googleMapsUrl);
+  } else {
+    throw 'Could not open Google Maps directions.';
+  }
+}
 

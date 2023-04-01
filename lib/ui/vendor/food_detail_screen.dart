@@ -492,12 +492,16 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                                       quantity;
 
                                   // provider.addOns
+                                  log('MK: variant price ${provider.variant?.price}');
+
+                                  int price = provider.variant?.price??provider.product?.price??0;
+
 
                                   Cart item = Cart(
                                       title: provider.product?.name,
                                       storeProductId: provider.product?.id,
                                       image: provider.product?.image,
-                                      price: provider.variant?.price.toString(),
+                                      price: price.toString(),
                                       totalPrice: total.toString(),
                                       addOns: list,
                                       comment: commentController.text,
