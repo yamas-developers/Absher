@@ -64,7 +64,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       actualStatus = 1;
     } else if (provider.orderItem?.orderStatus == "arrived_at_vendor") {
       actualStatus = 2;
-    } else if (provider.orderItem?.orderStatus == "picked_up") {
+    } else if (provider.orderItem?.orderStatus == "picked_up"
+        || provider.orderItem?.orderStatus == "arrived_at_customer") {
       actualStatus = 3;
     } else if (provider.orderItem?.orderStatus == "delivered") {
       actualStatus = 4;
@@ -592,9 +593,9 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      RoundedAvatar(
-                                        assetPath:
-                                            "assets/images/temp/person_icon.png",
+                                      RoundedNetworkAvatar(
+                                        url: detailProvider.orderDetailItem?.deliveryMan?.image,
+                                        prefix: MJ_Apis.profileImgPath,
                                         height: 50,
                                         width: 50,
                                       ),
@@ -933,11 +934,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       SizedBox(
                         height: 25,
                       ),
-                      if (orderStatus == 1)
+                      if (actualStatus == 1)
                         RoundedCenterButtton(
                             onPressed: () {},
                             title: getString("order__cancel_order"))
-                      else
+                      else if(actualStatus == 5)
                         RoundedCenterButtton(
                             onPressed: () {
                               _modalBottomSheetMenu(context);
