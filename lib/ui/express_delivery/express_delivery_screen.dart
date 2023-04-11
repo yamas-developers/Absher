@@ -216,7 +216,7 @@ class _ExpressDeliveryScreenState extends State<ExpressDeliveryScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              '${settingsProvider.zone?.zoneData?.first.currency_symbol}',
+                              '${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol??'--'}',
                               style: TextStyle(
                                   fontSize: 15,
                                   color: mainColor,

@@ -262,8 +262,8 @@ class OrderItem extends StatelessWidget {
         OrderDetailProvider detailProvider = context.read<OrderDetailProvider>();
         detailProvider.orderId = orderData.id;
         detailProvider.orderItem = orderData;
-        detailProvider.getData();
-        Navigator.pushNamed(context, order_detail_screen);
+        // detailProvider.getData();
+        Navigator.pushNamed(context, order_detail_screen, arguments: {'order_id': orderData.id});
       },
       child: Consumer<SettingsProvider>(
         builder: (context, settingsProvider, _) {
@@ -346,7 +346,7 @@ class OrderItem extends StatelessWidget {
                                           color: Colors.black),
                                     ),
                                     Text(
-                                      "${settingsProvider.zone?.zoneData?.first.currency_symbol} ${orderData.orderAmount}",
+                                      "${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol??'--'} ${orderData.orderAmount}",
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(

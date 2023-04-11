@@ -119,7 +119,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "${settingsProvider.zone?.zoneData?.first.currency_symbol} ${product?.price ?? "N/A"}",
+                                "${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol??'--'} ${product?.price ?? "N/A"}",
                                 style: TextStyle(
                                     color: priceGreenColor,
                                     fontSize: 17,
@@ -183,7 +183,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    "${settingsProvider.zone?.zoneData?.first.currency_symbol} ${addOn.price}",
+                                                    "${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol??'--'} ${addOn.price}",
                                                     style: TextStyle(
                                                         color: mainColor,
                                                         fontWeight: FontWeight.w600,
@@ -311,7 +311,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                "${settingsProvider.zone?.zoneData?.first.currency_symbol} ${variant?.price}",
+                                                "${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol??'--'} ${variant?.price}",
                                                 style: TextStyle(
                                                     color: isSelected
                                                         ? Colors.white

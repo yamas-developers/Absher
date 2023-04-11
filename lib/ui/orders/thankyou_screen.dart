@@ -162,7 +162,7 @@ class _ThankyouScreenState extends State<ThankyouScreen> {
                             fontWeight: FontWeight.w600),
                       ),
                       Text(
-                        '${settingsProvider.zone?.zoneData?.first.currency_symbol} 26',
+                        '${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol??'--'} 26',
                         style: TextStyle(
                             color: Colors.black,
                             fontSize: 16,
@@ -382,7 +382,7 @@ class _ThankyouScreenState extends State<ThankyouScreen> {
                               fontWeight: FontWeight.w600),
                         ),
                         Text(
-                          '${settingsProvider.zone?.zoneData?.first.currency_symbol} 26',
+                          '${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol??'--'} 26',
                           style: TextStyle(
                               color: Colors.black,
                               fontSize: 16,

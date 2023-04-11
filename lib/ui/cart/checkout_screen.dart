@@ -464,7 +464,7 @@ class _ChecoutScreenState extends State<ChecoutScreen> {
                               ),
                               Spacer(),
                               Text(
-                                "${settingsProvider.zone?.zoneData?.first.currency_symbol} ${provider.cartTotal}",
+                                "${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol??'--'} ${provider.cartTotal}",
                                 style: TextStyle(
                                     fontSize: 15,
                                     color: blackFontColor,

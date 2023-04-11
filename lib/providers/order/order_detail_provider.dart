@@ -58,6 +58,7 @@ class OrderDetailProvider extends ChangeNotifier {
     if (response != null) {
       OrderDetail item = OrderDetail.fromJson(response['response']["order"]);
       _orderDetailItem = item;
+      _orderItem?.orderStatus = _orderDetailItem?.orderStatus;
     }
     c_loading = false;
     notifyListeners();

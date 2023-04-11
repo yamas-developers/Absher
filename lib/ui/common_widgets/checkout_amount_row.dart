@@ -27,7 +27,7 @@ class CheckoutAmountRow extends StatelessWidget {
             ),
             Spacer(),
             Text(
-              "${settingsProvider.zone?.zoneData?.first.currency_symbol}",
+              "${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol??'--'}",
               style: TextStyle(
                   fontSize: 15, color: mainColor, fontWeight: FontWeight.w400),
             ),

@@ -228,7 +228,7 @@ class NearestResturentItem extends StatelessWidget {
                                             ),
                                             Flexible(
                                               child: Text(
-                                                "${settingsProvider.zone?.zoneData?.first.currency_symbol} ${resData.minimumShippingCharge}+",
+                                                "${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol??'--'} ${resData.minimumShippingCharge}+",
                                                 maxLines: 1,
                                                 style: TextStyle(
                                                     overflow: TextOverflow.ellipsis,

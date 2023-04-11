@@ -259,7 +259,7 @@ class _ExpressDetailsScreenState extends State<ExpressDetailsScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              "${settingsProvider.zone?.zoneData?.first.currency_symbol}",
+                              "${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol??'--'}",
                               style: TextStyle(
                                   fontSize: 15,
                                   color: mainColor,

@@ -289,7 +289,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 label: getString("auth__password"),
                 icon: Icons.lock,
                 controller: passwordCtrl,
-                errorText: passwordErrorText,
+                errorText: passwordErrorText,obscureText: true,
               ),
               SizedBox(
                 height: 2,
@@ -298,7 +298,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 label: getString("auth__confirm_password"),
                 icon: Icons.lock,
                 controller: confirmPasswordCtrl,
-                errorText: confirmPasswordErrorText,
+                errorText: confirmPasswordErrorText,obscureText: true,
               ),
               SizedBox(
                 height: 2,

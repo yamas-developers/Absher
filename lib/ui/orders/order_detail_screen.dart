@@ -1,14 +1,17 @@
 import 'dart:math';
+import 'dart:developer' as dev;
 
 import 'package:absher/api/mj_apis.dart';
 import 'package:absher/models/order_detail.dart';
 import 'package:absher/ui/common_widgets/rounded_center_button.dart';
 import 'package:absher/ui/common_widgets/touchable_opacity.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
 import '../../helpers/constants.dart';
+import '../../helpers/firebase/firebase_helper.dart';
 import '../../helpers/public_methods.dart';
 import '../../helpers/route_constants.dart';
 import '../../providers/order/order_detail_provider.dart';
@@ -58,14 +61,17 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     OrderDetailProvider provider = context.read<OrderDetailProvider>();
     // actualStatus =
     //     provider.orderItem?.orderStatus == "pending" ? 1 : actualStatus;
+    dev.log(
+        'order status in getPageData(): ${provider.orderItem?.orderStatus}');
     if (provider.orderItem?.orderStatus == "pending") {
       actualStatus = 1;
     } else if (provider.orderItem?.orderStatus == "rider_accepted") {
       actualStatus = 1;
-    } else if (provider.orderItem?.orderStatus == "arrived_at_vendor") {
+    } else if (provider.orderItem?.orderStatus == "arrived_at_vendor" ||
+        provider.orderItem?.orderStatus == "handover") {
       actualStatus = 2;
-    } else if (provider.orderItem?.orderStatus == "picked_up"
-        || provider.orderItem?.orderStatus == "arrived_at_customer") {
+    } else if (provider.orderItem?.orderStatus == "picked_up" ||
+        provider.orderItem?.orderStatus == "arrived_at_customer") {
       actualStatus = 3;
     } else if (provider.orderItem?.orderStatus == "delivered") {
       actualStatus = 4;
@@ -91,6 +97,16 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         OrderDetailProvider provider = context.read<OrderDetailProvider>();
         provider.orderId = orderId;
         await provider.getData();
+        context.read<FirebaseHelper>().initOrder(orderId,
+            onSuccess: (DatabaseEvent event) async {
+          Map data = event.snapshot.value as Map;
+          if (data['status'] != null &&
+              data['status'] != provider.orderItem?.orderStatus) {
+            dev.log("MK: status: you have a changed order status");
+            await provider.getData();
+            getPageData();
+          }
+        }, onError: (error) {});
       });
     }
 
@@ -250,7 +266,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       child: Column(
                         children: [
                           Text(
-                            "${detailProvider.orderItem?.processingTime ?? "0"}",
+                            "${detailProvider.orderDetailItem?.processingTime ?? "--"}",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 26,
@@ -583,110 +599,121 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                           ),
                           padding: EdgeInsets.symmetric(
                               vertical: 12.0, horizontal: 6),
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 6,
-                              ),
-                              Expanded(
-                                  flex: 3,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      RoundedNetworkAvatar(
-                                        url: detailProvider.orderDetailItem?.deliveryMan?.image,
-                                        prefix: MJ_Apis.profileImgPath,
-                                        height: 50,
-                                        width: 50,
-                                      ),
-                                    ],
-                                  )),
-                              SizedBox(
-                                width: 4,
-                              ),
-                              Expanded(
-                                flex: 9,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 4.0, vertical: 4),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // SizedBox(height: 12,),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 0),
-                                        child: Text(
-                                          getString(
-                                              "order__delivery_person_details"),
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 14,
-                                              color: darkGreyFontColor),
-                                        ),
-                                      ),
-                                      Text(
-                                        "${detailProvider.orderDetailItem?.deliveryMan?.fName} ${detailProvider.orderDetailItem?.deliveryMan?.lName}",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 14,
-                                            color: mainColor),
-                                      ),
-                                      SizedBox(
-                                        height: 2,
-                                      ),
-                                      Row(
-                                        children: [
-                                          TouchableOpacity(
-                                            onTap: () {
-                                              makePhoneCall(detailProvider
+                          child: detailProvider.orderDetailItem?.deliveryMan ==
+                                  null
+                              ? Center(
+                                  child: Text('Delivery man not available'))
+                              : Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 6,
+                                    ),
+                                    Expanded(
+                                        flex: 3,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            RoundedNetworkAvatar(
+                                              url: detailProvider
                                                   .orderDetailItem
                                                   ?.deliveryMan
-                                                  ?.phone);
-                                            },
-                                            child: Text(
-                                              "${detailProvider.orderDetailItem?.deliveryMan?.phone ?? 'Contact not available'}",
-                                              textDirection: TextDirection.ltr,
+                                                  ?.image,
+                                              prefix: MJ_Apis.profileImgPath,
+                                              height: 50,
+                                              width: 50,
+                                            ),
+                                          ],
+                                        )),
+                                    SizedBox(
+                                      width: 4,
+                                    ),
+                                    Expanded(
+                                      flex: 9,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 4.0, vertical: 4),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            // SizedBox(height: 12,),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 0),
+                                              child: Text(
+                                                getString(
+                                                    "order__delivery_person_details"),
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14,
+                                                    color: darkGreyFontColor),
+                                              ),
+                                            ),
+                                            Text(
+                                              "${detailProvider.orderDetailItem?.deliveryMan?.fName} ${detailProvider.orderDetailItem?.deliveryMan?.lName}",
                                               style: TextStyle(
-                                                  fontSize: 13,
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.w500),
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 14,
+                                                  color: mainColor),
                                             ),
-                                          ),
-                                          Spacer(),
-                                          InkWell(
-                                            onTap: () {
-                                              Navigator.pushNamed(
-                                                  context, chat_screen,
-                                                  arguments: {
-                                                    "other_user_id":
-                                                        "${detailProvider.orderDetailItem?.deliveryMan?.id}",
-                                                    "other_user_role":
-                                                        "delivery_man",
-                                                    "other_user_name":
-                                                        "${detailProvider.orderDetailItem?.deliveryMan?.fName} ${detailProvider.orderDetailItem?.deliveryMan?.lName}",
-                                                    "order_id":
-                                                        "${detailProvider.orderDetailItem?.id}",
-                                                  });
-                                            },
-                                            child: Icon(
-                                              Icons.chat,
-                                              color: mainColorLight,
+                                            SizedBox(
+                                              height: 2,
                                             ),
-                                          )
-                                        ],
+                                            Row(
+                                              children: [
+                                                TouchableOpacity(
+                                                  onTap: () {
+                                                    makePhoneCall(detailProvider
+                                                        .orderDetailItem
+                                                        ?.deliveryMan
+                                                        ?.phone);
+                                                  },
+                                                  child: Text(
+                                                    "${detailProvider.orderDetailItem?.deliveryMan?.phone ?? 'Contact not available'}",
+                                                    textDirection:
+                                                        TextDirection.ltr,
+                                                    style: TextStyle(
+                                                        fontSize: 13,
+                                                        color: Colors.black,
+                                                        fontWeight:
+                                                            FontWeight.w500),
+                                                  ),
+                                                ),
+                                                Spacer(),
+                                                InkWell(
+                                                  onTap: () {
+                                                    Navigator.pushNamed(
+                                                        context, chat_screen,
+                                                        arguments: {
+                                                          "other_user_id":
+                                                              "${detailProvider.orderDetailItem?.deliveryMan?.id}",
+                                                          "other_user_role":
+                                                              "delivery_man",
+                                                          "other_user_name":
+                                                              "${detailProvider.orderDetailItem?.deliveryMan?.fName} ${detailProvider.orderDetailItem?.deliveryMan?.lName}",
+                                                          "order_id":
+                                                              "${detailProvider.orderDetailItem?.id}",
+                                                        });
+                                                  },
+                                                  child: Icon(
+                                                    Icons.chat,
+                                                    color: mainColorLight,
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                            // SizedBox(height: 12,),
+                                          ],
+                                        ),
                                       ),
-                                      // SizedBox(height: 12,),
-                                    ],
-                                  ),
+                                    ),
+                                    SizedBox(
+                                      width: 20,
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              SizedBox(
-                                width: 20,
-                              ),
-                            ],
-                          ),
                         ),
                       )),
                       buildSlideTransition(
@@ -938,7 +965,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                         RoundedCenterButtton(
                             onPressed: () {},
                             title: getString("order__cancel_order"))
-                      else if(actualStatus == 5)
+                      else if (actualStatus == 5)
                         RoundedCenterButtton(
                             onPressed: () {
                               _modalBottomSheetMenu(context);
@@ -1340,7 +1367,7 @@ class OrderDetailOneItem extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                    "${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol} ${item?.price ?? 'N/A'} ",
+                                    "${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol ?? '--'} ${item?.price ?? '__'} ",
                                     style: TextStyle(
                                       color: Colors.black,
                                       fontSize: 14,
@@ -1430,7 +1457,7 @@ class OrderDetailOneItem extends StatelessWidget {
                                                       color: Colors.black),
                                                 ),
                                                 Text(
-                                                  "${settingsProvider.zone?.zoneData?.first.currency_symbol} ${item?.addOns?[index].price}",
+                                                  "${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol ?? '--'} ${item?.addOns?[index].price}",
                                                   style: TextStyle(
                                                       color: Colors.black),
                                                 ),
@@ -1482,7 +1509,7 @@ class OrderDetailOneItem extends StatelessWidget {
                         children: [
                           // SizedBox(height: 12,),
                           Text(
-                            "${settingsProvider.zone?.zoneData?.first.currency_symbol} 2.99",
+                            "${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol ?? '--'} 2.99",
                             style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 14,

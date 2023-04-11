@@ -60,7 +60,7 @@ class CartItem extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text("${settingsProvider.zone?.zoneData?.first.currency_symbol} ${item.price} ",
+                                Text("${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol??'--'} ${item.price} ",
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 14,
@@ -172,7 +172,7 @@ class CartItem extends StatelessWidget {
                                                       color: Colors.white60),
                                                 ),
                                                 Text(
-                                                  "${settingsProvider.zone?.zoneData?.first.currency_symbol} ${item.addOns?[index]
+                                                  "${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol??'--'} ${item.addOns?[index]
                                                       .price}",
                                                   style: TextStyle(
                                                       color: Colors.white60),

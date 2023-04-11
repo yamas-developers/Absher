@@ -8,6 +8,7 @@ import 'package:absher/providers/user/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
+import '../helpers/firebase/firebase_helper.dart';
 import 'business/delivery_pharma_provider.dart';
 import 'business/delivery_restaurant_provider.dart';
 import 'business/express_provider.dart';
@@ -72,4 +73,5 @@ List<SingleChildWidget> independentProviders = [
       create: (_) => PastOrdersProvider(),),
   ChangeNotifierProvider<OrderDetailProvider>(
       create: (_) => OrderDetailProvider(),),
+  ChangeNotifierProvider<FirebaseHelper>(create: (_) => FirebaseHelper()),
 ];

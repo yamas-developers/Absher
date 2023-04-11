@@ -218,7 +218,7 @@ class _CartScreenState extends State<CartScreen> {
                                             Row(
                                               children: [
                                                 Text(
-                                                  "${settingsProvider.zone?.zoneData?.first.currency_symbol}",
+                                                  "${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol??'--'}",
                                                   style: TextStyle(
                                                       color: Colors.white,
                                                       fontWeight: FontWeight.w700,
@@ -263,7 +263,7 @@ class _CartScreenState extends State<CartScreen> {
                                             Row(
                                               children: [
                                                 Text(
-                                                  "${settingsProvider.zone?.zoneData?.first.currency_symbol}",
+                                                  "${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol??'--'}",
                                                   style: TextStyle(
                                                       color: Colors.white,
                                                       fontWeight: FontWeight.w700,
@@ -334,7 +334,7 @@ class _CartScreenState extends State<CartScreen> {
                                             Row(
                                               children: [
                                                 Text(
-                                                  "${settingsProvider.zone?.zoneData?.first.currency_symbol}",
+                                                  "${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol??'--'}",
                                                   style: TextStyle(
                                                       color: Colors.white,
                                                       fontWeight: FontWeight.w700,

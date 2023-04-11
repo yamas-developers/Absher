@@ -6,6 +6,7 @@ import 'package:absher/helpers/constants.dart';
 import 'package:absher/helpers/route_constants.dart';
 import 'package:absher/models/restaurant.dart';
 import 'package:absher/providers/location/location_provider.dart';
+import 'package:absher/providers/order/pending_orders_provider.dart';
 import 'package:absher/providers/settings/settings_provider.dart';
 import 'package:absher/ui/common_widgets/touchable_opacity.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -63,467 +64,479 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: mainColor,
         toolbarHeight: 0,
       ),
-      body: Consumer<SettingsProvider>(
-        builder: (context, settingsProvider, _) => SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // SizedBox(
-              //   height: 4,
-              // ),
-              Container(
-                height: getLargestSide(context) * 0.08,
-                padding: EdgeInsets.fromLTRB(18, 10, 18, 0),
-                child: Flex(
-                  direction: Axis.horizontal,
-                  children: [
-                    Expanded(
-                      flex: 6,
-                      child: TouchableOpacity(
-                        onTap: () async {
-                          if(await Permission.location.status.isGranted)
-                          modalBottomSheetLocation(context);
-                          else showToast("Please provide location permission to proceed");
-                        },
-                        child: Container(
-                          // height: 39,
-                          padding: EdgeInsets.fromLTRB(8, 9, 4, 9),
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Color.fromRGBO(0, 0, 0, 0.15),
-                                  blurRadius: 6,
-                                  spreadRadius: .1,
-                                ),
-                              ]),
+      body: Consumer<PendingOrdersProvider>(
+        builder: (context, pendingOrders, _) {
+          return Consumer<SettingsProvider>(
+            builder: (context, settingsProvider, _) => SingleChildScrollView(
+              child: Column(
+                // crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // SizedBox(
+                  //   height: 4,
+                  // ),
+                  Container(
+                    height: getLargestSide(context) * 0.08,
+                    padding: EdgeInsets.fromLTRB(18, 10, 18, 0),
+                    child: Flex(
+                      direction: Axis.horizontal,
+                      children: [
+                        Expanded(
+                          flex: 6,
+                          child: pendingOrders.list.length > 0 ? TopOrdersWidget() : TouchableOpacity(
+                            onTap: () async {
+                              if(await Permission.location.status.isGranted)
+                              modalBottomSheetLocation(context);
+                              else showToast("Please provide location permission to proceed");
+                            },
+                            child: Container(
+                              // height: 39,
+                              padding: EdgeInsets.fromLTRB(8, 9, 4, 9),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Color.fromRGBO(0, 0, 0, 0.15),
+                                      blurRadius: 6,
+                                      spreadRadius: .1,
+                                    ),
+                                  ]),
+                              child: Row(
+                                children: [
+                                  Image.asset(
+                                    "assets/icons/location_pin.png",
+                                    width: 20,
+                                    height: 20,
+                                    color: mainColor,
+                                  ),
+                                  SizedBox(
+                                    width: 6,
+                                  ),
+                                  Flexible(
+                                      child: Text(
+                                    context.watch<LocationProvider>().address ??
+                                        getString("home__location"),
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        color: Color.fromRGBO(120, 22, 145, 1),
+                                        fontWeight: FontWeight.w600),
+                                  )),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
                           child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              Image.asset(
-                                "assets/icons/location_pin.png",
-                                width: 20,
-                                height: 20,
-                                color: mainColor,
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                      context, notifications_screen);
+                                },
+                                child: Image.asset(
+                                  "assets/icons/notification.png",
+                                  width: 24,
+                                  height: 24,
+                                ),
                               ),
-                              SizedBox(
-                                width: 6,
-                              ),
-                              Flexible(
-                                  child: Text(
-                                context.watch<LocationProvider>().address ??
-                                    getString("home__location"),
-                                style: TextStyle(
-                                    fontSize: 15,
-                                    color: Color.fromRGBO(120, 22, 145, 1),
-                                    fontWeight: FontWeight.w600),
-                              )),
                             ],
                           ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pushNamed(
-                                  context, notifications_screen);
-                            },
-                            child: Image.asset(
-                              "assets/icons/notification.png",
-                              width: 24,
-                              height: 24,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 8,
-              ),
-              ...safeguardConnectivityAndService(context: context, widgets: [
-                if (settingsProvider.banners != null)
-                  Container(
-                    height: getLargestSide(context) *
-                        (isPortrait(context) ? 0.18 : 0.2),
-                    padding: const EdgeInsets.all(8.0),
-                    child: Stack(
-                      alignment: Alignment.bottomCenter,
-                      children: [
-                        CarouselSlider(
-                          options: CarouselOptions(
-                            height: getSize(
-                                context, 0.6, getWidth(context) * .47, 120),
-                            // aspectRatio: 16/9,
-                            viewportFraction: .8,
-                            initialPage: 0,
-                            enableInfiniteScroll: true,
-                            reverse: false,
-                            autoPlay: true,
-                            autoPlayInterval: Duration(seconds: 3),
-                            autoPlayAnimationDuration:
-                                Duration(milliseconds: 800),
-                            autoPlayCurve: Curves.fastOutSlowIn,
-                            enlargeCenterPage: true,
-                            onPageChanged: (int i, a) {
-                              _current = i;
-                              setState(() {});
-                            },
-                            scrollDirection: Axis.horizontal,
-                          ),
-                          items: [
-                            ...List.generate(
-                              settingsProvider.banners!.length,
-                              (index) => Container(
-                                width: getSmallestSide(context),
-                                child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(14),
-                                    child: Stack(
-                                      alignment: Alignment.bottomCenter,
-                                      children: [
-                                        ImageWithPlaceholder(
-                                          prefix: MJ_Apis.bannerImgPath,
-                                          image: '${settingsProvider.banners![index].image}',
-                                          width: getSmallestSide(context),
-                                          height: null,
-                                          fit: BoxFit.cover,
-                                        ),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                  end: Alignment.bottomCenter,
-                                                  begin: Alignment.topCenter,
-                                                  colors: [
-                                                Color.fromRGBO(188, 55, 222, 0),
-                                                Color.fromRGBO(188, 55, 222, 0),
-                                                Color.fromRGBO(
-                                                    120, 22, 145, 0.82),
-                                              ])),
-                                        )
-                                      ],
-                                    )),
-                              ),
-                            ),
-                            // Container(
-                            //   width: getSmallestSide(context),
-                            //   child: ClipRRect(
-                            //       borderRadius: BorderRadius.circular(14),
-                            //       child: Stack(
-                            //         alignment: Alignment.bottomCenter,
-                            //         children: [
-                            //           Image.asset(
-                            //             'assets/images/banner1.jpeg',
-                            //             width: getSmallestSide(context),
-                            //             fit: BoxFit.cover,
-                            //           ),
-                            //           Container(
-                            //             decoration: BoxDecoration(
-                            //                 gradient: LinearGradient(
-                            //                     end: Alignment.bottomCenter,
-                            //                     begin: Alignment.topCenter,
-                            //                     colors: [
-                            //                   Color.fromRGBO(188, 55, 222, 0),
-                            //                   Color.fromRGBO(188, 55, 222, 0),
-                            //                   Color.fromRGBO(120, 22, 145, 0.82),
-                            //                 ])),
-                            //           )
-                            //         ],
-                            //       )),
-                            // ),
-                            // Container(
-                            //   width: getSmallestSide(context),
-                            //   child: ClipRRect(
-                            //       borderRadius: BorderRadius.circular(14),
-                            //       child: Stack(
-                            //         alignment: Alignment.bottomCenter,
-                            //         children: [
-                            //           Image.asset(
-                            //             'assets/images/banner2.jpeg',
-                            //             width: getSmallestSide(context),
-                            //             fit: BoxFit.cover,
-                            //           ),
-                            //           Container(
-                            //             decoration: BoxDecoration(
-                            //                 gradient: LinearGradient(
-                            //                     end: Alignment.bottomCenter,
-                            //                     begin: Alignment.topCenter,
-                            //                     colors: [
-                            //                   Color.fromRGBO(188, 55, 222, 0),
-                            //                   Color.fromRGBO(188, 55, 222, 0),
-                            //                   Color.fromRGBO(120, 22, 145, 0.82),
-                            //                 ])),
-                            //           )
-                            //         ],
-                            //       )),
-                            // ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(
-                            settingsProvider.banners!.length,
-                            (index) => Container(
-                              width: 8.0,
-                              height: 8.0,
-                              margin: EdgeInsets.symmetric(
-                                  vertical: 10.0, horizontal: 2.0),
-                              decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: _current == index
-                                      ? Color.fromRGBO(239, 0, 255, 1.0)
-                                      : Color.fromRGBO(252, 227, 255, 1.0)),
-                            ),
-                          ).toList(),
                         ),
                       ],
                     ),
                   ),
-                SizedBox(
-                  height: 8,
-                ),
-                Container(
-                  height: getLargestSide(context) * 0.035,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                    getString("home__welcome_to") + " " + getString("app_name"),
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  SizedBox(
+                    height: 8,
                   ),
-                ),
-
-                Container(
-                  width: getWidth(context),
-                  height: getLargestSide(context) * 0.17,
-                  padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: HomeItemWidget(
-                            onPress: () {
-                              Navigator.pushNamed(context, restaurant_screen,
-                                  arguments: {"store_type": BUSINESS_TYPE_RESTAURANT});
-                            },
-                            image: 'assets/images/type1.png',
-                            title: getString('home__restaurant')),
-                      ),
-                      SizedBox(
-                        width: 12,
-                      ),
-                      Expanded(
-                        child: HomeItemWidget(
-                            onPress: () {
-                              //go to store
-                              Navigator.pushNamed(context, restaurant_screen,
-                                  arguments: {"store_type": BUSINESS_TYPE_STORE});
-                            },
-                            image: 'assets/images/store.png',
-                            title: getString('home__store')),
-                      ),
-                    ],
-                  ),
-                ),
-                // SizedBox(height: 16,),
-                // Padding(
-                //   padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-                //   child: Row(
-                //       children: [
-                //     Expanded(
-                //       child: HomeItemBanner(
-                //           onPress: () {
-                //           },
-                //           image: 'assets/images/express_delivery_image.jpg',
-                //           title: 'Absher Express'),
-                //     ),
-                //   ]),
-                // ),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  width: getWidth(context),
-                  height: getLargestSide(context) * 0.17,
-                  padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: HomeItemWidget(
-                            onPress: () {
-                              //go to store
-                              Navigator.pushNamed(context, restaurant_screen,
-                                  arguments: {"store_type": BUSINESS_TYPE_PHARMACY});
-                            },
-                            image: 'assets/images/pharmacy.png',
-                            title: getString('home__pharmacy')),
-                      ),
-                      SizedBox(
-                        width: 12,
-                      ),
-                      Expanded(
-                        child: HomeItemWidget(
-                            onPress: () {
-                              Navigator.pushNamed(context, services_screen);
-                            },
-                            image: 'assets/images/service.png',
-                            title: getString('home__services')),
-                      ),
-                    ],
-                  ),
-                ),
-                // Container(
-                //
-                //   height: getLargestSide(context)(context)/getSmallestSide(context)*140,
-                //   // constraints: BoxConstraints.expand(),
-                //   // height: getLargestSide(context)(context),
-                //   padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
-                //   child: GridView.count(
-                //     shrinkWrap: true,
-                //     physics: NeverScrollableScrollPhysics(),
-                //     crossAxisCount: 2,
-                //     crossAxisSpacing: 8,
-                //     mainAxisSpacing: 10,
-                //     childAspectRatio: getLargestSide(context)(context)/getSmallestSide(context)*0.6,
-                //     // childAspectRatio: 1.2,
-                //     children: [
-                //
-                //
-                //     ],
-                //   ),
-                // ),
-                SizedBox(
-                  height: 14,
-                ),
-                Container(
-                  height: getLargestSide(context) * 0.03,
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  child: Text(
-                    getString('home__top_picks'),
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                SizedBox(
-                  height: 2,
-                ),
-                Container(
-                  padding: EdgeInsets.only(left: 6, right: 18),
-                  height: getLargestSide(context) * 0.19,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      HomeTopPickItems(
-                          onPress: () {
-                            Navigator.pushNamed(context, order_screen);
-                          },
-                          image: 'assets/icons/past_order.png',
-                          title: getString("home__past_orders")),
-                      // SizedBox(width: 8,),
-                      HomeTopPickItems(
-                          onPress: () {
-                            Navigator.pushNamed(
-                                context, express_delivery_screen);
-                          },
-                          image: 'assets/icons/delivery_truck_icon.png',
-                          color: mainColor,
-                          title: getString("app_name") +
-                              " " +
-                              getString("home__express")),
-                      HomeTopPickItems(
-                          onPress: () {
-                            Navigator.pushNamed(context, order_screen);
-                          },
-                          image: 'assets/icons/happy_hours.png',
-                          title: getString("home__offers")),
-
-                      // SizedBox(width: 8,),
-                      HomeTopPickItems(
-                          onPress: () {
-                            MjApiService().temp();
-                          },
-                          image: 'assets/icons/offers.png',
-                          title: getString("home__happy_hour")),
-                      // SizedBox(width: 8,),
-                      HomeTopPickItems(
-                          onPress: () {},
-                          image: 'assets/icons/choices.png',
-                          title: getString("home__choices")),
-                      // SizedBox(width: 8,),
-                    ],
-                  ),
-                ),
-
-                SizedBox(
-                  height: 20,
-                ),
-               if(false)
-               ...[ Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        getString("home__restaurants_nearby"),
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        getString("home__view_all"),
-                        style: TextStyle(
-                          color: Color.fromRGBO(155, 28, 187, 1),
+                  ...safeguardConnectivityAndService(context: context, widgets: [
+                    if (settingsProvider.banners != null)
+                      Container(
+                        height: getLargestSide(context) *
+                            (isPortrait(context) ? 0.18 : 0.2),
+                        padding: const EdgeInsets.all(8.0),
+                        child: Stack(
+                          alignment: Alignment.bottomCenter,
+                          children: [
+                            CarouselSlider(
+                              options: CarouselOptions(
+                                height: getSize(
+                                    context, 0.6, getWidth(context) * .47, 120),
+                                // aspectRatio: 16/9,
+                                viewportFraction: .8,
+                                initialPage: 0,
+                                enableInfiniteScroll: true,
+                                reverse: false,
+                                autoPlay: true,
+                                autoPlayInterval: Duration(seconds: 3),
+                                autoPlayAnimationDuration:
+                                    Duration(milliseconds: 800),
+                                autoPlayCurve: Curves.fastOutSlowIn,
+                                enlargeCenterPage: true,
+                                onPageChanged: (int i, a) {
+                                  _current = i;
+                                  setState(() {});
+                                },
+                                scrollDirection: Axis.horizontal,
+                              ),
+                              items: [
+                                ...List.generate(
+                                  settingsProvider.banners!.length,
+                                  (index) => Container(
+                                    width: getSmallestSide(context),
+                                    child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(14),
+                                        child: Stack(
+                                          alignment: Alignment.bottomCenter,
+                                          children: [
+                                            ImageWithPlaceholder(
+                                              prefix: MJ_Apis.bannerImgPath,
+                                              image: '${settingsProvider.banners![index].image}',
+                                              width: getSmallestSide(context),
+                                              height: null,
+                                              fit: BoxFit.cover,
+                                            ),
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                      end: Alignment.bottomCenter,
+                                                      begin: Alignment.topCenter,
+                                                      colors: [
+                                                    Color.fromRGBO(188, 55, 222, 0),
+                                                    Color.fromRGBO(188, 55, 222, 0),
+                                                    Color.fromRGBO(
+                                                        120, 22, 145, 0.82),
+                                                  ])),
+                                            )
+                                          ],
+                                        )),
+                                  ),
+                                ),
+                                // Container(
+                                //   width: getSmallestSide(context),
+                                //   child: ClipRRect(
+                                //       borderRadius: BorderRadius.circular(14),
+                                //       child: Stack(
+                                //         alignment: Alignment.bottomCenter,
+                                //         children: [
+                                //           Image.asset(
+                                //             'assets/images/banner1.jpeg',
+                                //             width: getSmallestSide(context),
+                                //             fit: BoxFit.cover,
+                                //           ),
+                                //           Container(
+                                //             decoration: BoxDecoration(
+                                //                 gradient: LinearGradient(
+                                //                     end: Alignment.bottomCenter,
+                                //                     begin: Alignment.topCenter,
+                                //                     colors: [
+                                //                   Color.fromRGBO(188, 55, 222, 0),
+                                //                   Color.fromRGBO(188, 55, 222, 0),
+                                //                   Color.fromRGBO(120, 22, 145, 0.82),
+                                //                 ])),
+                                //           )
+                                //         ],
+                                //       )),
+                                // ),
+                                // Container(
+                                //   width: getSmallestSide(context),
+                                //   child: ClipRRect(
+                                //       borderRadius: BorderRadius.circular(14),
+                                //       child: Stack(
+                                //         alignment: Alignment.bottomCenter,
+                                //         children: [
+                                //           Image.asset(
+                                //             'assets/images/banner2.jpeg',
+                                //             width: getSmallestSide(context),
+                                //             fit: BoxFit.cover,
+                                //           ),
+                                //           Container(
+                                //             decoration: BoxDecoration(
+                                //                 gradient: LinearGradient(
+                                //                     end: Alignment.bottomCenter,
+                                //                     begin: Alignment.topCenter,
+                                //                     colors: [
+                                //                   Color.fromRGBO(188, 55, 222, 0),
+                                //                   Color.fromRGBO(188, 55, 222, 0),
+                                //                   Color.fromRGBO(120, 22, 145, 0.82),
+                                //                 ])),
+                                //           )
+                                //         ],
+                                //       )),
+                                // ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: List.generate(
+                                settingsProvider.banners!.length,
+                                (index) => Container(
+                                  width: 8.0,
+                                  height: 8.0,
+                                  margin: EdgeInsets.symmetric(
+                                      vertical: 10.0, horizontal: 2.0),
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: _current == index
+                                          ? Color.fromRGBO(239, 0, 255, 1.0)
+                                          : Color.fromRGBO(252, 227, 255, 1.0)),
+                                ),
+                              ).toList(),
+                            ),
+                          ],
                         ),
-                      )
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 6),
-                  width: getLargestSide(context),
-                  height: 200,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      NearestResturentItem(
-                        onPress: () {},
-                        centerImageheight: 110,
-                        maxWidth: 300,
-                        widthFraction: 0.7,
-                        adjustOnLandscape: false,
-                        resData: Business(),
+                      ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Container(
+                      height: getLargestSide(context) * 0.035,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        children: [
+                          Text(
+                            getString("home__welcome_to") + " " + getString("app_name"),
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
 
+                    Container(
+                      width: getWidth(context),
+                      height: getLargestSide(context) * 0.17,
+                      padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: HomeItemWidget(
+                                onPress: () {
+                                  Navigator.pushNamed(context, restaurant_screen,
+                                      arguments: {"store_type": BUSINESS_TYPE_RESTAURANT});
+                                },
+                                image: 'assets/images/type1.png',
+                                title: getString('home__restaurant')),
+                          ),
+                          SizedBox(
+                            width: 12,
+                          ),
+                          Expanded(
+                            child: HomeItemWidget(
+                                onPress: () {
+                                  //go to store
+                                  Navigator.pushNamed(context, restaurant_screen,
+                                      arguments: {"store_type": BUSINESS_TYPE_STORE});
+                                },
+                                image: 'assets/images/store.png',
+                                title: getString('home__store')),
+                          ),
+                        ],
                       ),
-                      SizedBox(
-                        width: 8,
+                    ),
+                    // SizedBox(height: 16,),
+                    // Padding(
+                    //   padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                    //   child: Row(
+                    //       children: [
+                    //     Expanded(
+                    //       child: HomeItemBanner(
+                    //           onPress: () {
+                    //           },
+                    //           image: 'assets/images/express_delivery_image.jpg',
+                    //           title: 'Absher Express'),
+                    //     ),
+                    //   ]),
+                    // ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      width: getWidth(context),
+                      height: getLargestSide(context) * 0.17,
+                      padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: HomeItemWidget(
+                                onPress: () {
+                                  //go to store
+                                  Navigator.pushNamed(context, restaurant_screen,
+                                      arguments: {"store_type": BUSINESS_TYPE_PHARMACY});
+                                },
+                                image: 'assets/images/pharmacy.png',
+                                title: getString('home__pharmacy')),
+                          ),
+                          SizedBox(
+                            width: 12,
+                          ),
+                          Expanded(
+                            child: HomeItemWidget(
+                                onPress: () {
+                                  Navigator.pushNamed(context, services_screen);
+                                },
+                                image: 'assets/images/service.png',
+                                title: getString('home__services')),
+                          ),
+                        ],
                       ),
-                      NearestResturentItem(
-                        onPress: () {},
-                        centerImageheight: 110,
-                        maxWidth: 300,
-                        widthFraction: 0.7,
-                        adjustOnLandscape: false,
-                        resData: Business(),
+                    ),
+                    // Container(
+                    //
+                    //   height: getLargestSide(context)(context)/getSmallestSide(context)*140,
+                    //   // constraints: BoxConstraints.expand(),
+                    //   // height: getLargestSide(context)(context),
+                    //   padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                    //   child: GridView.count(
+                    //     shrinkWrap: true,
+                    //     physics: NeverScrollableScrollPhysics(),
+                    //     crossAxisCount: 2,
+                    //     crossAxisSpacing: 8,
+                    //     mainAxisSpacing: 10,
+                    //     childAspectRatio: getLargestSide(context)(context)/getSmallestSide(context)*0.6,
+                    //     // childAspectRatio: 1.2,
+                    //     children: [
+                    //
+                    //
+                    //     ],
+                    //   ),
+                    // ),
+                    SizedBox(
+                      height: 14,
+                    ),
+                    Container(
+                      height: getLargestSide(context) * 0.03,
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
+                      child: Row(
+                        children: [
+                          Text(
+                            getString('home__top_picks'),
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 2,
+                    ),
+                    Container(
+                      padding: EdgeInsets.only(left: 6, right: 18),
+                      height: getLargestSide(context) * 0.19,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          HomeTopPickItems(
+                              onPress: () {
+                                Navigator.pushNamed(context, order_screen);
+                              },
+                              image: 'assets/icons/past_order.png',
+                              title: getString("home__past_orders")),
+                          // SizedBox(width: 8,),
+                          HomeTopPickItems(
+                              onPress: () {
+                                Navigator.pushNamed(
+                                    context, express_delivery_screen);
+                              },
+                              image: 'assets/icons/delivery_truck_icon.png',
+                              color: mainColor,
+                              title: getString("app_name") +
+                                  " " +
+                                  getString("home__express")),
+                          HomeTopPickItems(
+                              onPress: () {
+                                Navigator.pushNamed(context, order_screen);
+                              },
+                              image: 'assets/icons/happy_hours.png',
+                              title: getString("home__offers")),
 
+                          // SizedBox(width: 8,),
+                          HomeTopPickItems(
+                              onPress: () {
+                                MjApiService().temp();
+                              },
+                              image: 'assets/icons/offers.png',
+                              title: getString("home__happy_hour")),
+                          // SizedBox(width: 8,),
+                          HomeTopPickItems(
+                              onPress: () {},
+                              image: 'assets/icons/choices.png',
+                              title: getString("home__choices")),
+                          // SizedBox(width: 8,),
+                        ],
                       ),
-                      SizedBox(
-                        width: 8,
+                    ),
+
+                    SizedBox(
+                      height: 20,
+                    ),
+                   if(false)
+                   ...[ Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            getString("home__restaurants_nearby"),
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            getString("home__view_all"),
+                            style: TextStyle(
+                              color: Color.fromRGBO(155, 28, 187, 1),
+                            ),
+                          )
+                        ],
                       ),
-                    ],
-                  ),
-                ),],
-                SizedBox(
-                  height: 20,
-                ),
-              ]),
-              // HomeItemWidget(onPress: (){}, image: 'assets/images/type1.png', title: 'Restaurant'),
-            ],
-          ),
-        ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 6),
+                      width: getLargestSide(context),
+                      height: 200,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: [
+                          NearestResturentItem(
+                            onPress: () {},
+                            centerImageheight: 110,
+                            maxWidth: 300,
+                            widthFraction: 0.7,
+                            adjustOnLandscape: false,
+                            resData: Business(),
+
+                          ),
+                          SizedBox(
+                            width: 8,
+                          ),
+                          NearestResturentItem(
+                            onPress: () {},
+                            centerImageheight: 110,
+                            maxWidth: 300,
+                            widthFraction: 0.7,
+                            adjustOnLandscape: false,
+                            resData: Business(),
+
+                          ),
+                          SizedBox(
+                            width: 8,
+                          ),
+                        ],
+                      ),
+                    ),],
+                    SizedBox(
+                      height: 20,
+                    ),
+                  ]),
+                  // HomeItemWidget(onPress: (){}, image: 'assets/images/type1.png', title: 'Restaurant'),
+                ],
+              ),
+            ),
+          );
+        }
       ),
     );
   }

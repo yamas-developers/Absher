@@ -152,7 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 controller: passwordCtrl,
                 label: getString("auth__password"),
                 icon: Icons.lock,
-                errorText: passwordErrorText,
+                errorText: passwordErrorText,obscureText: true,
               ),
               SizedBox(
                 height: 0,

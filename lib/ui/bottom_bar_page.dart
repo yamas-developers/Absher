@@ -1,7 +1,9 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:absher/helpers/constants.dart';
 import 'package:absher/providers/cart/cart_provider.dart';
+import 'package:absher/providers/order/pending_orders_provider.dart';
 import 'package:absher/providers/user/user_provider.dart';
 import 'package:absher/ui/cart/cart_screen.dart';
 import 'package:absher/ui/registeration/login_screen.dart';
@@ -27,7 +29,14 @@ class _BottomAppBarPageState extends State<BottomAppBarPage> {
 
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      getData();
+    });
     super.initState();
+  }
+
+  getData() {
+    context.read<PendingOrdersProvider>().getData();
   }
 
   @override
@@ -51,6 +60,13 @@ class _BottomAppBarPageState extends State<BottomAppBarPage> {
     return HomeScreen();
   }
 
+  Future<bool> willPop() async {
+     return Future.value(true);
+   return await showAlertDialog(context, 'Are you sure?', 'Are you sure to exit app?', okButtonText: 'Sure', dismissible: true, onPress: (){
+     Navigator.pop(context);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,7 +75,9 @@ class _BottomAppBarPageState extends State<BottomAppBarPage> {
         toolbarHeight: 0,
         elevation: 1,
       ),
-      body: getCurrentWidget(),
+      body: WillPopScope(
+          onWillPop: willPop,
+          child: getCurrentWidget()),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: SizedBox(
         width: getSize(context, .20, 120, 80),
@@ -76,31 +94,28 @@ class _BottomAppBarPageState extends State<BottomAppBarPage> {
                   alignment: Alignment.topRight,
                   clipBehavior: Clip.none,
                   children: [
-
                     Image.asset(
                       "assets/icons/cart.png",
                       width: getSize(context, .09, 44, 30),
                       height: 34,
                       color: currentIndex == 5 ? mainColor : lightGreyColor,
                     ),
-                    if(context.watch<CartProvider>().list.length>0)
-                    Positioned(
-                      right: -8,
-                      top: -10,
-                      child: Container(
-                          padding: EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: mainColor
-                          ),
-                          child: Text(
-                            "${context.watch<CartProvider>().list.length}",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700),
-                          )),
-                    ),
+                    if (context.watch<CartProvider>().list.length > 0)
+                      Positioned(
+                        right: -8,
+                        top: -10,
+                        child: Container(
+                            padding: EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle, color: mainColor),
+                            child: Text(
+                              "${context.watch<CartProvider>().list.length}",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700),
+                            )),
+                      ),
                   ],
                 ),
                 SizedBox(height: 4),

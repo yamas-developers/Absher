@@ -35,9 +35,9 @@ class ZoneData {
   String? deliverymanWiseTopic;
   double? minimumShippingCharge;
   double? perKmShippingCharge;
-  int? currencyId;
+  // int? currencyId;
   int? timezoneId;
-  String? currency_symbol;
+  // String? currency_symbol;
   Currency? currency;
 
   ZoneData({
@@ -51,10 +51,10 @@ class ZoneData {
     this.deliverymanWiseTopic,
     this.minimumShippingCharge,
     this.perKmShippingCharge,
-    this.currencyId,
+    // this.currencyId,
     this.timezoneId,
     this.currency,
-    this.currency_symbol
+    // this.currency_symbol
   });
 
   ZoneData.fromJson(Map<String, dynamic> json) {
@@ -72,9 +72,9 @@ class ZoneData {
     deliverymanWiseTopic = json['deliveryman_wise_topic'];
     minimumShippingCharge = json['minimum_shipping_charge']?.toDouble();
     perKmShippingCharge = json['per_km_shipping_charge']?.toDouble();
-    currencyId = json['currency_id'];
+    // currencyId = json['currency_id'];
     timezoneId = json['timezone_id'];
-    currency_symbol = symbol;
+    // currency_symbol = symbol;
     currency = json['currenci'] != null ? Currency.fromJson(json['currenci']) : null;
   }
 

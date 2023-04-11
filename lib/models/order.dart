@@ -151,13 +151,12 @@ class Order {
     zoneId = json['zone_id'].toString();
     dmTips = json['dm_tips'];
 
-    processingTime = json['processing_time'];
+    processingTime = json['processing_time'].toString();
     freeDeliveryBy = json['free_delivery_by'];
     detailsCount = json['details_count'];
     restaurant = json['restaurant'] != null
         ? Business.fromJson(json['restaurant'])
         : null;
-
     deliveryMan = json['delivery_man'] != null
         ? DeliveryMan.fromJson(json['delivery_man'])
         : null;

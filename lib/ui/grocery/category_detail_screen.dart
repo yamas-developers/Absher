@@ -506,7 +506,7 @@ class _ProductItemState extends State<ProductItem> {
                     ],
                   ),
                   Text(
-                    "${settingsProvider.zone?.zoneData?.first.currency_symbol} ${widget.product?.price ?? "N/A"}",
+                    "${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol??'--'} ${widget.product?.price ?? "N/A"}",
                     style: TextStyle(
                         fontWeight: FontWeight.w500,
                         fontSize: 15,

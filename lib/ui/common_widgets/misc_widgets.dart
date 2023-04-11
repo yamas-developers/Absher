@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:absher/helpers/constants.dart';
 import 'package:absher/helpers/public_methods.dart';
+import 'package:absher/providers/order/pending_orders_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -247,37 +248,37 @@ class ImageWithPlaceholder extends StatelessWidget {
             width: width,
             fit: fit,
             imageBuilder: (context, imageProvider) => Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: imageProvider,
-                    fit: BoxFit.cover,
-                    // colorFilter:
-                    //     ColorFilter.mode(Colors.red, BlendMode.colorBurn),
-                ),
-              ),
-            ),
-            placeholder: (context, url) => Stack(
-              children: <Widget>[
-                // Show a blurred version of the image
-                Image.network("$prefix$image"),
-                BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                  child: Container(
-                    color: Colors.white.withOpacity(0),
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: imageProvider,
+                      fit: BoxFit.cover,
+                      // colorFilter:
+                      //     ColorFilter.mode(Colors.red, BlendMode.colorBurn),
+                    ),
                   ),
                 ),
-                // Center(
-                //   child: CircularProgressIndicator(),
-                // ),
-              ],
-            ),
+            placeholder: (context, url) => Stack(
+                  children: <Widget>[
+                    // Show a blurred version of the image
+                    Image.network("$prefix$image"),
+                    BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                      child: Container(
+                        color: Colors.white.withOpacity(0),
+                      ),
+                    ),
+                    // Center(
+                    //   child: CircularProgressIndicator(),
+                    // ),
+                  ],
+                ),
             // errorWidget: (context, url, error) => Icon(Icons.error),
             errorWidget: (context, url, error) => Image.asset(
-              PLACEHOLDER_IAMGE_PATH,
-              height: height,
-              width: width,
-              fit: fit,)
-            )
+                  PLACEHOLDER_IAMGE_PATH,
+                  height: height,
+                  width: width,
+                  fit: fit,
+                ))
         : Image.asset(
             PLACEHOLDER_IAMGE_PATH,
             height: height,
@@ -296,40 +297,104 @@ class BottomCartWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<SettingsProvider>(builder: (context, settingsProvider, _) {
       return Consumer<CartProvider>(builder: (context, cartProvider, _) {
-        return GestureDetector(
-          onTap: () {
-            Navigator.pushReplacementNamed(context, cart_screen);
-          },
-          child: Container(
-              width: getWidth(context) * 0.94,
-              height: 50,
-              decoration: BoxDecoration(
-                  color: mainColor, borderRadius: BorderRadius.circular(10)),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Container(
-                        // height: ,
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white, width: 2),
+        return cartProvider.list.length > 0
+            ? GestureDetector(
+                onTap: () {
+                  Navigator.pushReplacementNamed(context, cart_screen);
+                },
+                child: Container(
+                    width: getWidth(context) * 0.94,
+                    height: 50,
+                    decoration: BoxDecoration(
+                        color: mainColor,
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Container(
+                              // height: ,
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                  border:
+                                      Border.all(color: Colors.white, width: 2),
 
-                            // borderRadius: BorderRadius.circular(50),
-                            shape: BoxShape.circle),
-                        child: Text(
-                          "${cartProvider.list.length}",
-                          style: TextStyle(fontSize: 16, color: Colors.white),
-                        )),
-                    Text(
-                      "Click to view cart",
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                    ),
-                    Text(
-                      "${settingsProvider.zone?.zoneData?.first.currency_symbol} ${cartProvider.cartTotal}",
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                    ),
-                  ])),
-        );
+                                  // borderRadius: BorderRadius.circular(50),
+                                  shape: BoxShape.circle),
+                              child: Text(
+                                "${cartProvider.list.length}",
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.white),
+                              )),
+                          Text(
+                            "Click to view cart",
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
+                          Text(
+                            "${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol ?? '--'} ${cartProvider.cartTotal}",
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
+                        ])),
+              )
+            : SizedBox();
+      });
+    });
+  }
+}
+
+class TopOrdersWidget extends StatelessWidget {
+  const TopOrdersWidget({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<SettingsProvider>(builder: (context, settingsProvider, _) {
+      return Consumer<PendingOrdersProvider>(
+          builder: (context, pendingProvider, _) {
+        return pendingProvider.list.length > 0
+            ? GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, order_screen);
+                },
+                child: Container(
+                    width: getWidth(context) * 0.94,
+                    height: 50,
+                    decoration: BoxDecoration(
+                        color: mainColor,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color.fromRGBO(0, 0, 0, 0.15),
+                            blurRadius: 6,
+                            spreadRadius: .1,
+                          ),
+                        ]),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Container(
+                              // height: ,
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                  border:
+                                      Border.all(color: Colors.white, width: 2),
+
+                                  // borderRadius: BorderRadius.circular(50),
+                                  shape: BoxShape.circle),
+                              child: Text(
+                                "${pendingProvider.list.length}",
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.white),
+                              )),
+                          Text(
+                            "Pending Orders",
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
+                          Image.asset('assets/gifs/right_arrow.gif', width: 26,),
+                          // Icon(Icons.arrow_forward_ios_sharp, color: Colors.white,)
+                        ])),
+              )
+            : SizedBox();
       });
     });
   }
