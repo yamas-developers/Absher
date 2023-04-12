@@ -24,7 +24,7 @@ class _ChatScreenState extends State<ChatScreen> {
   ScrollController listViewScrollController = ScrollController();
   TextEditingController messageController = TextEditingController();
   DatabaseReference chatRef =
-      FirebaseDatabase.instance.ref().child('chat_rooms');
+      FirebaseDatabase.instance.ref().child('orders');
 
   String? otherUserId;
   String? otherUserImage;
@@ -42,6 +42,7 @@ class _ChatScreenState extends State<ChatScreen> {
     getPageData();
     super.initState();
   }
+  Query? query;
 
   @override
   void didChangeDependencies() {
@@ -61,9 +62,18 @@ class _ChatScreenState extends State<ChatScreen> {
         //
         String? userId = context.read<UserProvider>().currentUser?.id;
         if (userId != null && orderId != null) {
+            // chat_id = '$userId$orderId$otherUserId';
+          // String room;
+          if(otherUserRole == 'rider'){
+            chat_id = 'rider_customer';
+          }else{
+            chat_id = 'customer_vendor';
+          }
           setState(() {
-            chat_id = '$otherUserId$orderId$userId';
-        log("MK: chatId $chat_id");
+            query = chatRef
+                .child(orderId!)
+                .child('chats').child(chat_id!)
+                .orderByChild("timestamp");
           });
         }
       });
@@ -174,7 +184,7 @@ class _ChatScreenState extends State<ChatScreen> {
             height: 6,
           ),
           Expanded(
-            child: chat_id != null && chat_id != ''
+            child: query != null && query != ''
                 ? FirebaseAnimatedList(
                     controller: listViewScrollController,
                     reverse: true,
@@ -190,17 +200,14 @@ class _ChatScreenState extends State<ChatScreen> {
                     physics: BouncingScrollPhysics(),
                     // shrinkWrap: false,
 
-                    query: chatRef
-                        .child(chat_id!)
-                        .child('chats')
-                        .orderByChild("timestamp"),
+                    query: query!,
 
                     itemBuilder: (context, snapshot, animation, index) {
                       Map snap = snapshot.value as Map;
                       // if (snap.isNotEmpty) if (init == false)
                       //   scrollToLast(fast: true);
                       var isOther =
-                          snap['creater_id'] != currentUser!.id.toString();
+                          snap['creater_id'] != 'customer_${currentUser!.id}';
 
                       String messageDate =
                           '${DateFormat('MMM d, yyyy').format(DateTime.fromMicrosecondsSinceEpoch(snap['timestamp']))}';
@@ -236,7 +243,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   )
                 : Center(
                     child: Text(
-                      'Send a message to start a chat!',
+                      'No chat found',
                       style: TextStyle(fontSize: 16),
                     ),
                   ),
@@ -274,24 +281,23 @@ class _ChatScreenState extends State<ChatScreen> {
                           if (messageController.text.isEmpty) {
                             return;
                           }
-                          if (chat_id == null) {
+                          if (chat_id == null || orderId == null) {
                             showToast("cannot find chat");
                             return;
                           }
 
-                          String key = await chatRef
-                              .child(chat_id!)
-                              .child('chats')
+                          String key = await chatRef.child(orderId!)
+                              .child('chats').child(chat_id!)
                               .push()
                               .key!;
                           DatabaseReference ref = await chatRef
-                              .child(chat_id!)
-                              .child('chats')
+                              .child(orderId!)
+                              .child('chats').child(chat_id!)
                               .child(key);
                           var message = messageController.text;
                           ref.set({
                             "message": message,
-                            "creater_id": currentUser!.id.toString(),
+                            "creater_id": 'customer_${currentUser!.id}',
                             "timestamp": DateTime.now().microsecondsSinceEpoch,
                             'type': 'text',
                             'from': 'app',

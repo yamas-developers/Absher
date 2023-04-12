@@ -229,7 +229,7 @@ class _OrderScreenState extends State<OrderScreen>
                       builder: (context, pastOrdersProvider, _) {
                         return OrdersArea(
                           orderProvider: pastOrdersProvider,
-                          isPending: true,
+                          isPending: false,
                         );
                       }),
                 ]),

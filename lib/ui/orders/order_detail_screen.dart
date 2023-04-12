@@ -690,7 +690,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                                           "other_user_id":
                                                               "${detailProvider.orderDetailItem?.deliveryMan?.id}",
                                                           "other_user_role":
-                                                              "delivery_man",
+                                                              "rider",
                                                           "other_user_name":
                                                               "${detailProvider.orderDetailItem?.deliveryMan?.fName} ${detailProvider.orderDetailItem?.deliveryMan?.lName}",
                                                           "order_id":
@@ -810,18 +810,43 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                       ),
                                     ),
                                     Expanded(
-                                      child: TouchableOpacity(
-                                        onTap: () {
-                                          makePhoneCall(detailProvider
-                                              .orderDetailItem
-                                              ?.business
-                                              ?.phone);
-                                        },
-                                        child: Image.asset(
-                                          "assets/icons/phone_rounded_filled.png",
-                                          height: 24,
-                                          // color: mainColor,
-                                        ),
+                                      child: Column(
+                                        children: [
+                                          TouchableOpacity(
+                                            onTap: () {
+                                              makePhoneCall(detailProvider
+                                                  .orderDetailItem
+                                                  ?.business
+                                                  ?.phone);
+                                            },
+                                            child: Image.asset(
+                                              "assets/icons/phone_rounded_filled.png",
+                                              height: 24,
+                                              // color: mainColor,
+                                            ),
+                                          ),
+                                          SizedBox(height: 10),
+                                          InkWell(
+                                            onTap: () {
+                                              Navigator.pushNamed(
+                                                  context, chat_screen,
+                                                  arguments: {
+                                                    "other_user_id":
+                                                    "${detailProvider.orderDetailItem?.business?.id}",
+                                                    "other_user_role":
+                                                    "vendor",
+                                                    "other_user_name":
+                                                    "${detailProvider.orderDetailItem?.business?.name}",
+                                                    "order_id":
+                                                    "${detailProvider.orderDetailItem?.id}",
+                                                  });
+                                            },
+                                            child: Icon(
+                                              Icons.chat,
+                                              color: mainColorLight,
+                                            ),
+                                          )
+                                        ],
                                       ),
                                     ),
                                     SizedBox(
@@ -961,16 +986,16 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       SizedBox(
                         height: 25,
                       ),
-                      if (actualStatus == 1)
-                        RoundedCenterButtton(
-                            onPressed: () {},
-                            title: getString("order__cancel_order"))
-                      else if (actualStatus == 5)
-                        RoundedCenterButtton(
-                            onPressed: () {
-                              _modalBottomSheetMenu(context);
-                            },
-                            title: getString("order__rate_order")),
+                      // if (actualStatus == 1)
+                      //   RoundedCenterButtton(
+                      //       onPressed: () {},
+                      //       title: getString("order__cancel_order"))
+                      // else if (actualStatus == 5)
+                      //   RoundedCenterButtton(
+                      //       onPressed: () {
+                      //         _modalBottomSheetMenu(context);
+                      //       },
+                      //       title: getString("order__rate_order")),
                     ],
                   ),
                 ),
