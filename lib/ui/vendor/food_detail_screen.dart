@@ -109,7 +109,7 @@ class _FoodDetailScreenState extends State<FoodDetailScreen> {
                               height: 200,
                               width: getWidth(context),
                               prefix: MJ_Apis.productImgPath,
-                            )),
+                            )), 
                         SizedBox(
                           height: 16,
                         ),

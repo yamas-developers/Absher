@@ -39,7 +39,7 @@ dependencies:
   dotted_border: ^2.0.0+3
   pull_to_refresh: ^2.0.0
   easy_localization: ^3.0.1
-  pinput:
+  pinput: ^2.2.31
   get:
   google_maps_flutter: ^2.2.1
   geolocator: ^9.0.2

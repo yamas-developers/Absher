@@ -108,7 +108,7 @@ class _CartScreenState extends State<CartScreen> {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      "${provider.currentStore?.name??"Restaurant: N/A"}",
+                                      provider.currentStore?.name??"Restaurant: N/A",
                                       maxLines: 1,
                                       style: TextStyle(
                                         color: Colors.white,

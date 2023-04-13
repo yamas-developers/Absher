@@ -240,70 +240,71 @@ class CartProvider extends DBHelper<Cart> with ChangeNotifier, MjApiService {
     if (!userProvider.isLogin || userProvider.currentUser == null) {
       showToast("Please login to proceed");
       return;
-    }
-    // {
-    //   "food_id": 3,
-    // "variation": [{"type":"Small","price":100}],
-    // "add_on_ids":[12,14],
-    // "add_on_qtys":[1,1],
-    // "quantity": 2,
-    // "variant": "Small"
-    // }
 
-    List cartList = [];
-    for (Cart item in _list) {
-      Map datum = {
-        "food_id": item.storeProductId,
-        "variation": [item.variant?.toJson() ?? ""],
-        "add_on_ids": item.addOns?.map((e) => e.id ?? "").toList(),
-        "add_on_qtys": item.addOns?.map((e) => e.qty ?? "").toList(),
-        "quantity": item.qty,
-        "variant": "${item.variant?.type ?? ""}"
+      // {
+      //   "food_id": 3,
+      // "variation": [{"type":"Small","price":100}],
+      // "add_on_ids":[12,14],
+      // "add_on_qtys":[1,1],
+      // "quantity": 2,
+      // "variant": "Small"
+      // }
+
+      List cartList = [];
+      for (Cart item in _list) {
+        Map datum = {
+          "food_id": item.storeProductId,
+          "variation": [item.variant?.toJson() ?? ""],
+          "add_on_ids": item.addOns?.map((e) => e.id ?? "").toList(),
+          "add_on_qtys": item.addOns?.map((e) => e.qty ?? "").toList(),
+          "quantity": item.qty,
+          "variant": "${item.variant?.type ?? ""}"
+        };
+        cartList.add(datum);
+      }
+
+      double distance = 0; /////////////////
+
+      Map<String, dynamic> payload = {
+        "order_amount": _cartTotal.toString(),
+        "payment_method": "cash_on_delivery",
+        "order_type": "delivery",
+        "restaurant_id": _currentStoreId,
+        "distance": "$distance",
+        "address": locationProvider.address,
+        "longitude": "${locationProvider.currentLocation.longitude}",
+        "latitude": "${locationProvider.currentLocation.latitude}",
+        "contact_person_name":
+            "${userProvider.currentUser?.fName ?? ""} ${userProvider.currentUser?.lName ?? ""}",
+        "contact_person_number": "${userProvider.currentUser?.phone ?? ""}",
+        "address_type": "Delivery Address",
+        "floor": "",
+        "road": "",
+        "house": "",
+        "dm_tips": "0.0",
+        "order_note": "",
+        "otp": "0000",
+        "cart": json.encode(cartList)
       };
-      cartList.add(datum);
-    }
 
-    double distance = 0; /////////////////
+      log("MJ: cart data for order: ${payload}");
+      // return;
 
-    Map<String, dynamic> payload = {
-      "order_amount": _cartTotal.toString(),
-      "payment_method": "cash_on_delivery",
-      "order_type": "delivery",
-      "restaurant_id": _currentStoreId,
-      "distance": "$distance",
-      "address": locationProvider.address,
-      "longitude": "${locationProvider.currentLocation.longitude}",
-      "latitude": "${locationProvider.currentLocation.latitude}",
-      "contact_person_name":
-          "${userProvider.currentUser?.fName ?? ""} ${userProvider.currentUser?.lName ?? ""}",
-      "contact_person_number": "${userProvider.currentUser?.phone ?? ""}",
-      "address_type": "Delivery Address",
-      "floor": "",
-      "road": "",
-      "house": "",
-      "dm_tips": "0.0",
-      "order_note": "",
-      "otp": "0000",
-      "cart": json.encode(cartList)
-    };
-
-    log("MJ: cart data for order: ${payload}");
-    // return;
-
-    showProgressDialog(context, "Placing Order");
-    dynamic response =
-        await MjApiService().postRequest(MJ_Apis.place_order, payload);
-    log("MJ: response ${response}");
+      showProgressDialog(context, "Placing Order");
+      dynamic response =
+          await MjApiService().postRequest(MJ_Apis.place_order, payload);
+      log("MJ: response ${response}");
       hideProgressDialog(context);
-    if (response != null) {
-      showToast("Order placed successfully");
-      clearCart();
-      Navigator.pop(context);
-      // notifyListeners();
-      return true;
-    } else
-      return false;
+      if (response != null) {
+        showToast("Order placed successfully");
+        clearCart();
+        Navigator.pop(context);
+        // notifyListeners();
+        return true;
+      } else
+        return false;
 
-    //
+      //
+    }
   }
 }

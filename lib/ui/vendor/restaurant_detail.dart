@@ -5,7 +5,6 @@ import 'package:absher/providers/business/business_detail_provider.dart';
 import 'package:absher/ui/common_widgets/misc_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 import '../../api/mj_apis.dart';
@@ -441,11 +440,12 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
                                                       height: 12,
                                                     ),
                                                     ...List.generate(
-                                                        (provider
-                                                            .businessCategories[
-                                                        index]
-                                                            .categoryProducts?.length ?? 0), (i) {
-                                                          // int i = 0;
+                                                        provider
+                                                                .businessCategories[
+                                                                    index]
+                                                                .categoryProducts
+                                                                ?.length ??
+                                                            0, (i) {
                                                       // int i = index < 11
                                                       //     ? index + 1
                                                       //     : Random().nextInt(11) +
@@ -578,7 +578,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen>
                                   )
                               ],
                               SizedBox(
-                                height: cartProvider.list.length > 0 ? 60 : 20,
+                                height: 20,
                               ),
                             ],
                           ),
@@ -819,7 +819,8 @@ class RestaurantFoodItem extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          "${settingsProvider.zone?.zoneData?.first.currency?.currencySymbol??'--'} ${product.price}",
+//                          "${settingsProvider.zone?.zoneData?.first.currency_symbol} ${product.price}",
+                          " ${product.price}",
                           style: TextStyle(
                               fontWeight: FontWeight.w500,
                               fontSize: 15,
@@ -987,44 +988,30 @@ class MySliverAppBar extends SliverPersistentHeaderDelegate {
                     onTap: () {
                       Navigator.pop(context);
                     },
-                    child: Container(
-                      height: 38,
-                      decoration: BoxDecoration(
-                        color: Colors.black12,shape: BoxShape.circle
-
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 15.0, top: 10, right: 18, bottom: 10),
-                        child: Image.asset(
-                          "assets/icons/back_arrow_icon.png",
-                          width: 24,
-                          height: 24,
-                          color: Colors.white,
-                        ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                      child: Image.asset(
+                        "assets/icons/back_arrow_icon.png",
+                        width: 24,
+                        height: 24,
+                        color: Colors.white,
                       ),
                     ),
-                  ).marginOnly(left: 10),
+                  ),
                   Row(
                     children: [
                       Text("${text}"),
                       GestureDetector(
                         onTap: onFavoriteClick,
-                        child: Container(
-                          height: 38,
-                          decoration: BoxDecoration(
-                              color: Colors.black12,shape: BoxShape.circle
-
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 15.0, top: 7, right: 15, bottom: 7),
-                            child: Image.asset(
-                              !isFavorite
-                                  ? "assets/icons/favorite.png"
-                                  : "assets/icons/favorite_filled.png",
-                              width: 30,
-                              height: 30,
-                              color: Colors.white,
-                            ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                          child: Image.asset(
+                            !isFavorite
+                                ? "assets/icons/favorite.png"
+                                : "assets/icons/favorite_filled.png",
+                            width: 30,
+                            height: 30,
+                            color: Colors.white,
                           ),
                         ),
                       ),
